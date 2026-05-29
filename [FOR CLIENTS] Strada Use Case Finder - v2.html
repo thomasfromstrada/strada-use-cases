@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strada — Use Case Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g50:#F8F7F4;--g100:#F1EFE8;--g200:#D9D7CE;--g300:#C0BDB3;
+  --g400:#AAAAAA;--g500:#888780;--g800:#1a1a1a;
+  --black:#0a0a0a;--white:#fff;
+  --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+}
+body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:100vh}
+
+header{background:var(--black);padding:22px 48px;display:flex;align-items:center}
+.logo{font-size:18px;font-weight:600;color:#fff;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
+.logo-sub{font-size:11px;color:#555;font-family:var(--mono);font-weight:400}
+
+.main{max-width:900px;margin:0 auto;padding:44px 24px 80px}
+.eyebrow{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);font-family:var(--mono);margin-bottom:10px}
+h1{font-size:26px;font-weight:600;letter-spacing:-.4px;color:var(--black);margin-bottom:10px;line-height:1.25}
+.hero-desc{font-size:14px;color:var(--g500);max-width:480px;line-height:1.65;margin-bottom:36px}
+
+/* FILTERS */
+.filter-panel{background:var(--white);border:1px solid var(--g200);border-radius:12px;padding:20px 24px 18px;margin-bottom:32px}
+.filter-row{display:flex;gap:14px;flex-wrap:wrap}
+.fg{display:flex;flex-direction:column;gap:5px;flex:1;min-width:140px}
+.fg label{font-size:11px;font-weight:500;color:var(--g400);letter-spacing:.04em;text-transform:uppercase;font-family:var(--mono)}
+.fg select{
+  padding:8px 30px 8px 11px;border:1px solid var(--g200);border-radius:7px;
+  font-size:13px;font-family:var(--font);color:var(--g800);
+  background:var(--g50) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%23aaa' d='M5 6.5L1 2.5h8z'/%3E%3C/svg%3E") no-repeat right 10px center;
+  appearance:none;cursor:pointer;transition:border-color .15s
+}
+.fg select:focus{outline:none;border-color:var(--black)}
+.fg select.active{border-color:var(--black);background-color:var(--white);font-weight:500}
+.reset-btn{margin-top:12px;font-size:12px;color:var(--g400);background:none;border:none;cursor:pointer;font-family:var(--font);text-decoration:underline;text-underline-offset:2px}
+.reset-btn:hover{color:var(--g800)}
+
+/* SECTION */
+.section{margin-bottom:28px}
+.section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--g400);font-family:var(--mono);margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--g200)}
+
+/* ROW ITEM — the full-width clickable row */
+.uc-row{
+  background:var(--white);
+  border:1px solid var(--g200);
+  border-radius:10px;
+  margin-bottom:6px;
+  overflow:hidden;
+  transition:border-color .15s, box-shadow .15s;
+}
+.uc-row:hover{border-color:var(--g300);box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.uc-row.open{border-color:var(--black);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+
+.uc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 18px;cursor:pointer;gap:12px;
+  user-select:none;
+}
+.uc-title{font-size:14px;font-weight:600;color:var(--black);line-height:1.4;letter-spacing:-.1px}
+.uc-row.open .uc-title{color:var(--black)}
+
+.uc-icon{
+  width:28px;height:28px;border-radius:50%;background:var(--g100);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:background .2s,transform .3s;
+}
+.uc-row.open .uc-icon{background:var(--black);transform:rotate(45deg)}
+.uc-icon svg{width:12px;height:12px;stroke:var(--g500);stroke-width:2;fill:none;transition:stroke .2s}
+.uc-row.open .uc-icon svg{stroke:#fff}
+
+/* EXPAND AREA — height animated via JS, not CSS max-height hack */
+.uc-body{
+  height:0;overflow:hidden;
+  transition:height .35s cubic-bezier(.4,0,.2,1);
+}
+.uc-body-inner{
+  padding:0 18px 18px;
+  border-top:1px solid var(--g100);
+  opacity:0;
+  transform:translateY(-4px);
+  transition:opacity .2s .1s, transform .2s .1s;
+}
+.uc-row.open .uc-body-inner{opacity:1;transform:translateY(0)}
+
+.uc-desc{font-size:13.5px;color:var(--g500);line-height:1.65;padding-top:14px;margin-bottom:14px}
+.uc-tags{display:flex;gap:7px;flex-wrap:wrap}
+
+/* TAGS */
+.tag{font-size:11px;font-weight:500;font-family:var(--mono);padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.tag-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.tag-ai-vh{background:#1565C0;color:#fff}.tag-ai-vh .tag-dot{background:rgba(255,255,255,.5)}
+.tag-ai-h{background:#E3F2FD;color:#1565C0}.tag-ai-h .tag-dot{background:#1565C0}
+.tag-eff-vh{background:#2E7D32;color:#fff}.tag-eff-vh .tag-dot{background:rgba(255,255,255,.5)}
+.tag-eff-h{background:#E8F5E9;color:#2E7D32}.tag-eff-h .tag-dot{background:#2E7D32}
+.tag-vrel{background:var(--black);color:#fff}.tag-vrel .tag-dot{background:rgba(255,255,255,.4)}
+.tag-rel{background:var(--g100);color:var(--g500)}.tag-rel .tag-dot{background:var(--g400)}
+
+.empty-state{text-align:center;padding:52px 20px;color:var(--g500);background:var(--white);border:1px solid var(--g200);border-radius:12px}
+
+/* Entrance animation only for new items */
+@keyframes rowIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⊙ Strada <span class="logo-sub">Use Case Finder</span></div>
+</header>
+
+<div class="main">
+  <div class="eyebrow">P&amp;C Insurance Operations</div>
+  <h1>See what Strada recommends<br>for your specific profile</h1>
+  <p class="hero-desc">Select your segment, line of business, and department to surface the most relevant AI automation use cases for your operation.</p>
+
+  <div class="filter-panel">
+    <div class="filter-row">
+      <div class="fg">
+        <label>Segment</label>
+        <select id="seg" onchange="applyFilters()">
+          <option value="">All segments</option>
+          <option value="carrier">Carrier</option>
+          <option value="mga">MGA</option>
+          <option value="broker">Retail Broker</option>
+          <option value="wholesaler">Wholesaler</option>
+          <option value="tpa">TPA</option>
+          <option value="bpo">BPO</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Line of Business</label>
+        <select id="lob" onchange="applyFilters()">
+          <option value="">All lines</option>
+          <option value="auto">Auto</option>
+          <option value="property">Property</option>
+          <option value="casualty">Casualty</option>
+          <option value="wc">Workers Comp</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="fg">
+        <label>Department</label>
+        <select id="dept" onchange="applyFilters()">
+          <option value="">All departments</option>
+          <option value="claims">Claims</option>
+          <option value="distribution">Distribution</option>
+          <option value="underwriting">Underwriting</option>
+          <option value="operations">Operations</option>
+          <option value="it">IT</option>
+          <option value="finance">Finance</option>
+          <option value="cs">Customer Service</option>
+        </select>
+      </div>
+    </div>
+    <button class="reset-btn" onclick="resetFilters()">Reset filters</button>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<script>
+const DATA=[
+  {domain:'Claims',                  title:'Answer inbound status inquiries',                       desc:'Respond to \u201cwhere is my claim?\u201d across voice, chat, and email \u2013 without routing to an adjuster.',                                                                    ai:'vh',eff:'vh',carrier:1.0,mga:0.7,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:1.0,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:1.0,distribution:0.1,underwriting:0.1,operations:0.5,it:0.1,finance:0.1,cs:1.0},
+  {domain:'Claims',                  title:'First Notice of Loss / First Report of Injury',         desc:'Capture loss details from claimants, agents, or third parties across every channel \u2013 at any volume.',                                                                          ai:'vh',eff:'vh',carrier:1.0,mga:0.9,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:1.0,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:1.0,distribution:0.1,underwriting:0.1,operations:0.5,it:0.1,finance:0.1,cs:0.7},
+  {domain:'Claims',                  title:'Triage and route claim',                                desc:'Score severity, assign the right handler, and route every claim automatically \u2013 without a human queue.',                                                                       ai:'vh',eff:'vh',carrier:1.0,mga:0.9,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:0.6,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:1.0,distribution:0.1,underwriting:0.1,operations:0.8,it:0.3,finance:0.1,cs:0.1},
+  {domain:'Claims',                  title:'Complete initial fraud screening',                      desc:'Run OFAC checks, duplicate detection, and fraud indicator scoring at intake \u2013 before any adjuster time is spent.',                                                             ai:'vh',eff:'h', carrier:1.0,mga:0.9,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:0.5,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.8,claims:1.0,distribution:0.1,underwriting:0.1,operations:0.8,it:0.5,finance:0.1,cs:0.1},
+  {domain:'Claims',                  title:'Coverage & exposure assessment',                        desc:'Apply policy rules to the loss, identify exclusions, flag reservation of rights, and establish preliminary liability \u2013 within hours of FNOL.',                                ai:'h', eff:'vh',carrier:1.0,mga:1.0,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:0.1,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.8,claims:1.0,distribution:0.1,underwriting:0.7,operations:0.1,it:0.1,finance:0.1,cs:0.1},
+  {domain:'Claims',                  title:'Document ingestion and indexing',                       desc:'Ingest, classify, and index incoming documents \u2013 police reports, medical records, photos, invoices \u2013 into the right claim file automatically.',                          ai:'vh',eff:'vh',carrier:1.0,mga:0.9,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:0.8,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:1.0,distribution:0.5,underwriting:0.5,operations:0.8,it:0.8,finance:0.3,cs:0.1},
+  {domain:'Claims',                  title:'Claim file QA',                                         desc:'Continuously score claim files for completeness, compliance, and decision quality \u2013 across every adjuster and every file.',                                                    ai:'vh',eff:'h', carrier:1.0,mga:0.7,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:0.5,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.8,claims:1.0,distribution:0.1,underwriting:0.1,operations:1.0,it:0.3,finance:0.1,cs:0.1},
+  {domain:'Claims',                  title:'Estimate damage from photos and video',                 desc:'Analyze customer-submitted or field-collected photos and video to estimate repair cost and flag total loss \u2013 before adjuster review.',                                          ai:'vh',eff:'vh',carrier:1.0,mga:0.8,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:0.5,auto:1.0,property:1.0,casualty:0.4,wc:0.1,other:0.3,claims:1.0,distribution:0.1,underwriting:0.1,operations:0.3,it:0.3,finance:0.1,cs:0.1},
+  {domain:'Claims',                  title:'Coordinate repair, vendor, and third-party scheduling', desc:'Orchestrate repair shop selection, contractor assignment, rental coordination, and appointment confirmation \u2013 without manual back-and-forth.',                                  ai:'vh',eff:'vh',carrier:1.0,mga:0.8,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:0.6,auto:1.0,property:1.0,casualty:0.5,wc:0.6,other:0.3,claims:1.0,distribution:0.1,underwriting:0.1,operations:0.8,it:0.1,finance:0.1,cs:0.3},
+  {domain:'Servicing',               title:'Answer inbound policy inquiries',                       desc:'Respond to coverage questions, billing inquiries, and general policy questions across voice, chat, and email \u2013 without transferring to an agent.',                              ai:'vh',eff:'vh',carrier:1.0,mga:0.8,broker:0.6,wholesaler:0.3,tpa:0.5,bpo:0.8,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.3,distribution:1.0,underwriting:0.1,operations:0.3,it:0.1,finance:0.1,cs:1.0},
+  {domain:'Servicing',               title:'Route and prioritize inbound service requests',         desc:'Classify and route inbound contacts \u2013 endorsement requests, complaints, payment issues, document requests \u2013 to the right queue and handler instantly.',                   ai:'vh',eff:'vh',carrier:1.0,mga:0.8,broker:0.5,wholesaler:0.3,tpa:0.8,bpo:0.9,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.3,distribution:1.0,underwriting:0.1,operations:1.0,it:0.5,finance:0.1,cs:0.8},
+  {domain:'Servicing',               title:'Process policy change requests',                        desc:'Handle endorsements, coverage updates, address changes, vehicle swaps, and driver additions and removals \u2013 end to end.',                                                       ai:'h', eff:'vh',carrier:1.0,mga:0.9,broker:0.5,wholesaler:0.2,tpa:0.6,bpo:0.7,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.3,distribution:1.0,underwriting:0.3,operations:0.5,it:0.3,finance:0.1,cs:0.7},
+  {domain:'Servicing',               title:'Issue policy documents',                                desc:'Generate and deliver certificates of insurance, ID cards, declarations pages, and endorsement confirmations \u2013 on demand.',                                                     ai:'vh',eff:'h', carrier:1.0,mga:0.9,broker:0.7,wholesaler:0.5,tpa:0.5,bpo:0.8,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.3,distribution:1.0,underwriting:0.3,operations:0.5,it:0.5,finance:0.1,cs:0.7},
+  {domain:'Servicing',               title:'Collect and process premium payments',                  desc:'Handle payment intake, follow up on missed payments, manage payment plans, and process reinstatement requests.',                                                                    ai:'h', eff:'h', carrier:1.0,mga:0.8,broker:0.4,wholesaler:0.1,tpa:0.3,bpo:0.7,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.8,underwriting:0.1,operations:0.5,it:0.3,finance:1.0,cs:0.6},
+  {domain:'Servicing',               title:'Handle cancellation and reinstatement',                 desc:'Process cancellations, send required notices, follow up on non-payment lapses, and reinstate eligible policies.',                                                                   ai:'h', eff:'h', carrier:1.0,mga:0.8,broker:0.4,wholesaler:0.1,tpa:0.3,bpo:0.6,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:1.0,underwriting:0.1,operations:0.5,it:0.1,finance:0.5,cs:0.6},
+  {domain:'Servicing',               title:'Respond to agent and broker inquiries',                 desc:'Handle status checks, coverage questions, and document requests from agents and brokers \u2013 without pulling internal staff.',                                                    ai:'vh',eff:'h', carrier:1.0,mga:1.0,broker:0.3,wholesaler:0.5,tpa:0.6,bpo:0.5,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.3,distribution:1.0,underwriting:0.3,operations:0.3,it:0.1,finance:0.1,cs:0.7},
+  {domain:'New Business & Renewals', title:'Triage and route incoming submissions',                 desc:'Receive, classify, and route new business submissions from email, portals, and APIs \u2013 and flag duplicates and out-of-appetite risks immediately.',                             ai:'vh',eff:'vh',carrier:1.0,mga:1.0,broker:0.3,wholesaler:0.8,tpa:0.3,bpo:0.6,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.1,underwriting:1.0,operations:0.8,it:0.5,finance:0.1,cs:0.1},
+  {domain:'New Business & Renewals', title:'Generate renewal quotes and documents',                 desc:'Produce renewal quote documents, coverage change notices, and updated declarations \u2013 and deliver them to agents and policyholders on time.',                                   ai:'vh',eff:'vh',carrier:1.0,mga:1.0,broker:0.4,wholesaler:0.6,tpa:0.1,bpo:0.4,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.5,underwriting:1.0,operations:0.3,it:0.3,finance:0.1,cs:0.3},
+  {domain:'New Business & Renewals', title:'Renewal notification and outbound outreach',            desc:'Trigger renewal reminders, explain premium and coverage changes, and proactively contact policyholders and agents ahead of expiry.',                                                ai:'vh',eff:'h', carrier:1.0,mga:0.9,broker:0.5,wholesaler:0.3,tpa:0.1,bpo:0.5,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.8,underwriting:0.5,operations:0.5,it:0.1,finance:0.1,cs:0.8},
+  {domain:'New Business & Renewals', title:'Retention follow-up',                                   desc:'Follow up on non-responses, handle renewal objections, and escalate at-risk accounts \u2013 before they lapse.',                                                                   ai:'h', eff:'vh',carrier:1.0,mga:0.9,broker:0.6,wholesaler:0.2,tpa:0.1,bpo:0.3,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.8,underwriting:0.5,operations:0.5,it:0.1,finance:0.1,cs:0.8},
+];
+
+const SEG={carrier:'carrier',mga:'mga',broker:'broker',wholesaler:'wholesaler',tpa:'tpa',bpo:'bpo'};
+const LOB={auto:'auto',property:'property',casualty:'casualty',wc:'wc',other:'other'};
+const DEPT={claims:'claims',distribution:'distribution',underwriting:'underwriting',operations:'operations',it:'it',finance:'finance',cs:'cs'};
+const DOMAINS=['Claims','Servicing','New Business & Renewals'];
+
+let activeTitle=null;
+let prevVisible=[];
+
+function sc(u,seg,lob,dept){
+  return Math.pow(seg?u[SEG[seg]]:1,1.5)*Math.pow(dept?u[DEPT[dept]]:1,1.5)*(lob?u[LOB[lob]]:1);
+}
+function aiTag(ai){return ai==='vh'?'<span class="tag tag-ai-vh"><span class="tag-dot"></span>AI potential: Very high</span>':'<span class="tag tag-ai-h"><span class="tag-dot"></span>AI potential: High</span>'}
+function effTag(e){return e==='vh'?'<span class="tag tag-eff-vh"><span class="tag-dot"></span>Efficiency gain: Very high</span>':'<span class="tag tag-eff-h"><span class="tag-dot"></span>Efficiency gain: High</span>'}
+function relTag(s,m){return(s/m)>=0.65?'<span class="tag tag-vrel"><span class="tag-dot"></span>Very relevant</span>':'<span class="tag tag-rel"><span class="tag-dot"></span>Relevant</span>'}
+
+function getVisible(seg,lob,dept){
+  const hasF=!!(seg||lob||dept);
+  const scored=DATA.map(u=>({...u,s:sc(u,seg,lob,dept)})).sort((a,b)=>b.s-a.s);
+  if(!hasF) return {items:scored,maxS:scored[0]?.s||1,hasF};
+  const maxS=scored[0]?.s||1;
+  const thr=maxS*0.35;
+  const above=scored.filter(u=>u.s>=thr);
+  return {items:above.length>=5?above.slice(0,12):scored.slice(0,5),maxS,hasF};
+}
+
+// Animate a row open by measuring its inner height
+function openRow(row){
+  const body=row.querySelector('.uc-body');
+  const inner=row.querySelector('.uc-body-inner');
+  body.style.height='0px';
+  // Force reflow
+  body.offsetHeight;
+  const target=inner.scrollHeight+32; // padding
+  body.style.height=target+'px';
+  row.classList.add('open');
+}
+function closeRow(row){
+  const body=row.querySelector('.uc-body');
+  body.style.height=body.scrollHeight+'px';
+  body.offsetHeight;
+  body.style.height='0px';
+  row.classList.remove('open');
+}
+
+function render(seg,lob,dept){
+  const {items,maxS,hasF}=getVisible(seg,lob,dept);
+  if(!items.find(u=>u.title===activeTitle)) activeTitle=null;
+
+  const groups={};
+  items.forEach(u=>{if(!groups[u.domain])groups[u.domain]=[];groups[u.domain].push(u)});
+
+  let html='';
+  DOMAINS.filter(d=>groups[d]).forEach(domain=>{
+    let rows='';
+    groups[domain].forEach((u,i)=>{
+      const isNew=!prevVisible.includes(u.title);
+      const anim=isNew?`style="animation:rowIn .22s ease ${i*30}ms both"`:'';
+      rows+=`<div class="uc-row" id="row-${CSS.escape(u.title)}" ${anim}>
+        <div class="uc-header" onclick="toggle('${u.title.replace(/'/g,"\\'")}')">
+          <div class="uc-title">${u.title}</div>
+          <div class="uc-icon">
+            <svg viewBox="0 0 14 14"><line x1="7" y1="2" x2="7" y2="12"/><line x1="2" y1="7" x2="12" y2="7"/></svg>
+          </div>
+        </div>
+        <div class="uc-body">
+          <div class="uc-body-inner">
+            <div class="uc-desc">${u.desc}</div>
+            <div class="uc-tags">${aiTag(u.ai)}${effTag(u.eff)}${hasF?relTag(u.s,maxS):''}</div>
+          </div>
+        </div>
+      </div>`;
+    });
+    html+=`<div class="section"><div class="section-label">${domain}</div>${rows}</div>`;
+  });
+
+  prevVisible=items.map(u=>u.title);
+  document.getElementById('results').innerHTML=html||'<div class="empty-state"><p>No use cases found. Try broader filters.</p></div>';
+
+  // Restore open state without animation
+  if(activeTitle){
+    const row=document.getElementById('row-'+CSS.escape(activeTitle));
+    if(row){
+      const body=row.querySelector('.uc-body');
+      const inner=row.querySelector('.uc-body-inner');
+      body.style.height=(inner.scrollHeight+32)+'px';
+      row.classList.add('open');
+    }
+  }
+}
+
+function toggle(title){
+  const seg=document.getElementById('seg').value;
+  const lob=document.getElementById('lob').value;
+  const dept=document.getElementById('dept').value;
+
+  if(activeTitle===title){
+    // Close current
+    const row=document.getElementById('row-'+CSS.escape(activeTitle));
+    if(row) closeRow(row);
+    activeTitle=null;
+  } else {
+    // Close previous
+    if(activeTitle){
+      const prev=document.getElementById('row-'+CSS.escape(activeTitle));
+      if(prev) closeRow(prev);
+    }
+    activeTitle=title;
+    const row=document.getElementById('row-'+CSS.escape(title));
+    if(row){
+      openRow(row);
+      setTimeout(()=>row.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+    }
+  }
+}
+
+function applyFilters(){
+  ['seg','lob','dept'].forEach(id=>document.getElementById(id).classList.toggle('active',!!document.getElementById(id).value));
+  activeTitle=null;
+  const seg=document.getElementById('seg').value;
+  const lob=document.getElementById('lob').value;
+  const dept=document.getElementById('dept').value;
+  render(seg,lob,dept);
+}
+
+function resetFilters(){
+  ['seg','lob','dept'].forEach(id=>{document.getElementById(id).value='';document.getElementById(id).classList.remove('active')});
+  activeTitle=null;
+  render('','','');
+}
+
+render('','','');
+</script>
+</body>
+</html>
