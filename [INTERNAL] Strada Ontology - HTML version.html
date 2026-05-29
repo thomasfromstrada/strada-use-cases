@@ -1,0 +1,2964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strada — Claims Ontology</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f7f7f5;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: #0a0a0a;
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header-left { display: flex; flex-direction: column; gap: 2px; }
+  .header-logo { font-size: 20px; font-weight: 600; color: #fff; letter-spacing: -0.3px; }
+  .header-tag { font-size: 12px; color: #888; }
+  .header-actions { display: flex; gap: 10px; }
+  .btn-sm {
+    padding: 7px 14px;
+    font-size: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    border: 1px solid #333;
+    background: transparent;
+    color: #aaa;
+    transition: all 0.15s;
+  }
+  .btn-sm:hover { background: #1a1a1a; color: #fff; }
+
+  .main { max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  .hero { margin-bottom: 36px; }
+  .hero h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; color: #0a0a0a; margin-bottom: 8px; }
+  .hero p { font-size: 14px; color: #666; line-height: 1.6; max-width: 560px; }
+
+  .stats-row {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 36px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 14px 20px;
+    flex: 1;
+  }
+  .stat-num { font-size: 22px; font-weight: 600; color: #0a0a0a; letter-spacing: -0.5px; }
+  .stat-label { font-size: 12px; color: #999; margin-top: 2px; }
+
+  /* FUNCTION BLOCKS */
+  .fn-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .fn-block {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .fn-block.open { border-color: #0a0a0a; }
+
+  .fn-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+  .fn-header:hover { background: #fafafa; }
+  .fn-block.open .fn-header { background: #0a0a0a; }
+
+  .fn-left { display: flex; align-items: center; gap: 14px; }
+
+  .fn-chevron {
+    font-size: 18px;
+    color: #bbb;
+    transition: transform 0.2s;
+    width: 16px;
+    display: inline-block;
+    line-height: 1;
+  }
+  .fn-block.open .fn-chevron { transform: rotate(90deg); color: #fff; }
+
+  .fn-title-wrap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .fn-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #0a0a0a;
+    letter-spacing: -0.2px;
+  }
+  .fn-block.open .fn-name { color: #fff; }
+
+  .tag {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    padding: 3px 8px;
+    border-radius: 20px;
+  }
+  .tag-horizontal { background: #e8eaf6; color: #3949ab; }
+  .tag-sequential { background: #f1f8e9; color: #558b2f; }
+  .fn-block.open .tag-horizontal { background: rgba(255,255,255,0.15); color: #aab; }
+  .fn-block.open .tag-sequential { background: rgba(255,255,255,0.15); color: #aab; }
+
+  .fn-right { flex-shrink: 0; }
+  .fn-meta { font-size: 12px; color: #bbb; }
+  .fn-block.open .fn-meta { color: #888; }
+
+  .fn-body { padding: 0 20px 20px; }
+
+  .fn-desc {
+    font-size: 13px;
+    color: #888;
+    padding: 16px 0 16px 30px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 12px;
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* USE CASE BLOCKS */
+  .uc-list { display: flex; flex-direction: column; gap: 6px; }
+
+  .uc-block {
+    border: 1px solid #ebebeb;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .uc-block.open { border-color: #ccc; }
+
+  .uc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 13px 16px;
+    cursor: pointer;
+    user-select: none;
+    background: #fafafa;
+    transition: background 0.1s;
+  }
+  .uc-header:hover { background: #f2f2f0; }
+  .uc-block.open .uc-header { background: #f2f2f0; }
+
+  .uc-left { display: flex; align-items: center; gap: 10px; }
+
+  .uc-chevron {
+    font-size: 16px;
+    color: #ccc;
+    transition: transform 0.2s;
+    width: 14px;
+    display: inline-block;
+    line-height: 1;
+  }
+  .uc-block.open .uc-chevron { transform: rotate(90deg); color: #666; }
+
+  .uc-name { font-size: 14px; font-weight: 500; color: #333; }
+  .uc-count { font-size: 12px; color: #bbb; flex-shrink: 0; }
+
+  .uc-body { background: #fff; }
+
+  /* WORKFLOW ROWS */
+  .wf-list { padding: 4px 0; }
+
+  .wf-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px 10px 40px;
+    border-bottom: 1px solid #f5f5f5;
+    gap: 12px;
+    transition: background 0.1s;
+  }
+  .wf-row:last-child { border-bottom: none; }
+  .wf-row:hover { background: #fafafa; }
+
+  .wf-name { font-size: 13px; color: #444; flex: 1; line-height: 1.4; }
+
+  .wf-badges { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+
+  .badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .badge-neutral { background: #f0f0f0; color: #888; }
+
+  /* Footer */
+  .footer-note {
+    margin-top: 32px;
+    font-size: 12px;
+    color: #ccc;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">⊙ Strada</div>
+    <div class="header-tag">P&amp;C Claims Ontology — Internal Reference</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-sm" onclick="expandAll()">Expand all</button>
+    <button class="btn-sm" onclick="collapseAll()">Collapse all</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="hero">
+    <h1>P&amp;C Claims Value Chain</h1>
+    <p>A three-level decomposition of the end-to-end P&amp;C claims lifecycle. Click any phase to explore use cases and workflows. Use this as an internal reference for prioritizing AI automation opportunities.</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-num">10</div>
+      <div class="stat-label">Functions</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">42</div>
+      <div class="stat-label">Use cases</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">241</div>
+      <div class="stat-label">Workflows</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">2</div>
+      <div class="stat-label">Horizontal layers</div>
+    </div>
+  </div>
+
+  <div class="fn-list">
+
+      <div class="fn-block" id="fn-0">
+        <div class="fn-header" onclick="toggleFN('fn-0')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-0-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">Claimant & Stakeholder Servicing</span>
+              <span class="tag tag-horizontal">Horizontal layer</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">3 use cases · 15 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-0-body" style="display:none">
+          <div class="fn-desc">Cross-phase layer. Claimant and third-party communication running throughout the claims lifecycle.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-0-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-0-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-0-uc-0-chevron">›</span>
+                <span class="uc-name">Answer inbound status inquiries</span>
+              </div>
+              <span class="uc-count">3 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-0-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Respond to claim status</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to document submission inquiries</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">4 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to general claim inquiries</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-0-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-0-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-0-uc-1-chevron">›</span>
+                <span class="uc-name">Perform claimant-initiated updates</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-0-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Update claimant or claim information</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Process documents submitted by claimant</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Process adjuster reassignment request</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Process attorney representation change</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Process payment method change</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Process other claimant service request</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-0-uc-2">
+            <div class="uc-header" onclick="toggleUC('fn-0-uc-2')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-0-uc-2-chevron">›</span>
+                <span class="uc-name">Manage third-party stakeholder contacts</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-0-uc-2-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Respond to agents inquiry</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to attorney inquiry</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to medical provider inquiry</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to repair vendor inquiry</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to employer inquiry</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to lienholder inquiry</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">7 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="fn-block" id="fn-1">
+        <div class="fn-header" onclick="toggleFN('fn-1')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-1-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">Fraud, QA, and Regulation</span>
+              <span class="tag tag-horizontal">Horizontal layer</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">2 use cases · 10 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-1-body" style="display:none">
+          <div class="fn-desc">Cross-phase layer. Fraud detection, quality control, and regulatory compliance running throughout.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-1-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-1-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-1-uc-0-chevron">›</span>
+                <span class="uc-name">Maintain fraud & quality standards</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-1-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Sample claim files for quality review</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Score claim files against compliance checklist</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Score adjuster decision quality</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Score vendor output quality</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Generate QA performance report</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Monitor and escalate fraud indicators</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-1-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-1-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-1-uc-1-chevron">›</span>
+                <span class="uc-name">Manage regulatory obligations</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-1-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Respond to a DOI complaint</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">60 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to bad faith allegation</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">90 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Submit regulatory filing</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to state market conduct exam</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">120 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="fn-block" id="fn-2">
+        <div class="fn-header" onclick="toggleFN('fn-2')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-2-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">1. Claim Intake</span>
+              <span class="tag tag-sequential">Sequential phase</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">4 use cases · 18 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-2-body" style="display:none">
+          <div class="fn-desc">Completion state: claim record created, initially routed, claimant acknowledged.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-2-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-2-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-2-uc-0-chevron">›</span>
+                <span class="uc-name">Receive loss notification</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-2-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Capture claimant-reported FNOL</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Capture agent-submitted FNOL</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Capture third party notice (attorney, hospital, police...)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Process CAT bulk intake</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-2-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-2-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-2-uc-1-chevron">›</span>
+                <span class="uc-name">Create claim record</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-2-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Extract policy and coverage data from core system</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Extract policyholder and participant records</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">4 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Record loss data from FNOL interaction</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Set claim parameters (jurisdiction, LOB, coverage line)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Open claim file in claims management system</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Validate and complete initial loss data</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-2-uc-2">
+            <div class="uc-header" onclick="toggleUC('fn-2-uc-2')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-2-uc-2-chevron">›</span>
+                <span class="uc-name">Triage and route claim</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-2-uc-2-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Assign severity and priority level</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Match to external event data (e.g. CAT)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Determine claim handling process route</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Route claim and associated data to next handler</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">4 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Identify immediate vendor needs</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Generate and send claim receipt to claimant</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">2 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-2-uc-3">
+            <div class="uc-header" onclick="toggleUC('fn-2-uc-3')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-2-uc-3-chevron">›</span>
+                <span class="uc-name">Complete initial fraud screening</span>
+              </div>
+              <span class="uc-count">2 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-2-uc-3-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Screen against OFAC / watchlist</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">2 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Run duplicate claim check</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">2 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="fn-block" id="fn-3">
+        <div class="fn-header" onclick="toggleFN('fn-3')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-3-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">2. Coverage & Exposure Assessment</span>
+              <span class="tag tag-sequential">Sequential phase</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">5 use cases · 25 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-3-body" style="display:none">
+          <div class="fn-desc">Completion state: coverage position established, liability estimated, handling strategy confirmed.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-3-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-3-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-3-uc-0-chevron">›</span>
+                <span class="uc-name">Verify coverage</span>
+              </div>
+              <span class="uc-count">7 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-3-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Extract policy data (active contract, exclusions, eligibility...)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Apply coverage rules to loss circumstances</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Extract other applicable insurance policies</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Determine coordination of benefits</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assess reservation of rights need</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Generate and send IROR, Non-Waiver, and/or RFI</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Send coverage determination notification</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-3-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-3-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-3-uc-1-chevron">›</span>
+                <span class="uc-name">Establish liability position</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-3-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Determine loss causation</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">25 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Extract party and incident data</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assess preliminary fault and negligence</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Determine third-party liability exposure</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assess and record subrogation potential</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Estimate liability percentage</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-3-uc-2">
+            <div class="uc-header" onclick="toggleUC('fn-3-uc-2')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-3-uc-2-chevron">›</span>
+                <span class="uc-name">Assess complexity and risk</span>
+              </div>
+              <span class="uc-count">2 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-3-uc-2-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Determine claim complexity / severity tier</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assess litigation risk</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-3-uc-3">
+            <div class="uc-header" onclick="toggleUC('fn-3-uc-3')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-3-uc-3-chevron">›</span>
+                <span class="uc-name">Determine investigation plan</span>
+              </div>
+              <span class="uc-count">5 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-3-uc-3-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Perform conflict of interest check on coverage counsel</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assign workflow path</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assign authority level</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">4 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Identify vendor needs</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Determine specialist referral needs</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-3-uc-4">
+            <div class="uc-header" onclick="toggleUC('fn-3-uc-4')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-3-uc-4-chevron">›</span>
+                <span class="uc-name">Obtain authorization and consents</span>
+              </div>
+              <span class="uc-count">5 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-3-uc-4-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Obtain recorded statement consent</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Obtain HIPAA releases</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Obtain property access authorization</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[BI / WC] Obtain credit / financial records authorization</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Obtain biometric / telematics data authorization</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="fn-block" id="fn-4">
+        <div class="fn-header" onclick="toggleFN('fn-4')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-4-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">3. Claim Investigation</span>
+              <span class="tag tag-sequential">Sequential phase</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">6 use cases · 45 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-4-body" style="display:none">
+          <div class="fn-desc">Completion state: all material facts gathered, evidence file complete, outstanding items resolved.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-4-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-4-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-4-uc-0-chevron">›</span>
+                <span class="uc-name">Obtain statements and interviews</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-4-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Schedule recorded statements</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Conduct recorded statements</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Schedule EUO</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Conduct EUO in person</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">120 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-4-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-4-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-4-uc-1-chevron">›</span>
+                <span class="uc-name">Collect document and records</span>
+              </div>
+              <span class="uc-count">16 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-4-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Run ISO ClaimSearch</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">2 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Extract prior claim history</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Extract telematics / black box data</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Extract weather / CAT event data</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Request and obtain police / incident report</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Request and obtain medical records</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Request and obtain financial records</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Request and obtain CCTV / surveillance footage</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Request and obtain wage records</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Request and obtain social media data</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Collect proof of loss form</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Collect receipts and invoices</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Collect insured-submitted photos</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Collect insured-submitted contractor estimates</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Collect inventory documentation</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Collect medical bills submitted by claimant</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-4-uc-2">
+            <div class="uc-header" onclick="toggleUC('fn-4-uc-2')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-4-uc-2-chevron">›</span>
+                <span class="uc-name">Assign and dispatch field resources</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-4-uc-2-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Determine field resource needs (contractor, appraiser...)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Select and assign vendor to claim</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Create claim brief for vendor</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Send brief with claim data to vendor</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Schedule field activity (inspection, repair, medical visit...)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Send scheduling confirmation to all parties</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-4-uc-3">
+            <div class="uc-header" onclick="toggleUC('fn-4-uc-3')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-4-uc-3-chevron">›</span>
+                <span class="uc-name">Collect field investigation outputs</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-4-uc-3-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Send request to vendor for field reports and estimates</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Analyze and review written field reports</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">25 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Analyze and review photo documentation</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Analyze and review video footage</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Validate completeness of vendor submissions</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Record field investigation findings</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-4-uc-4">
+            <div class="uc-header" onclick="toggleUC('fn-4-uc-4')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-4-uc-4-chevron">›</span>
+                <span class="uc-name">Manage medical file</span>
+              </div>
+              <span class="uc-count">9 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-4-uc-4-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Request treatment plan from medical provider</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assess treatment plan appropriateness</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Authorize medical treatment</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Request and conduct medical bill review</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Commission and schedule IME</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Receive and analyze IME report</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">25 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Review and authorize prescription treatment</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Develop and monitor return-to-work plan</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Commission vocational rehabilitation assessment</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-4-uc-5">
+            <div class="uc-header" onclick="toggleUC('fn-4-uc-5')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-4-uc-5-chevron">›</span>
+                <span class="uc-name">Resolve outstanding information</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-4-uc-5-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Follow up on missing information and non-responsive parties</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Identify and reconcile conflicting information</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">25 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Escalate unresolvable gaps</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Send investigation status update</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="fn-block" id="fn-5">
+        <div class="fn-header" onclick="toggleFN('fn-5')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-5-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">4. Claim Evaluation</span>
+              <span class="tag tag-sequential">Sequential phase</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">3 use cases · 24 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-5-body" style="display:none">
+          <div class="fn-desc">Completion state: payable exposure determined, outcome recommended, internal approvals obtained.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-5-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-5-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-5-uc-0-chevron">›</span>
+                <span class="uc-name">Assess damage and losses</span>
+              </div>
+              <span class="uc-count">17 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-5-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Assess vehicle damage and repair scope</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Make total loss determination</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Calculate ACV</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Assign salvage value</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Assess bodily injury exposure</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Calculate rental and transportation exposure</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Assess structural and contents damage</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">40 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Assess remediation and reconstruction scope</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">35 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Make total loss determination</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Calculate ACV</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Calculate additional living and business interruption exposure</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Casualty / BI] Assess medical expense exposure</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">35 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Casualty / BI] Assess income and earning capacity loss</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Casualty / BI] Assess pain, suffering, and non-economic damages</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">40 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Workers Comp] Assess medical treatment exposure</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Workers Comp] Assess disability and work capacity</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">35 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Workers Comp] Calculate indemnity and wage replacement exposure</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-5-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-5-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-5-uc-1-chevron">›</span>
+                <span class="uc-name">Calculate net payable exposure</span>
+              </div>
+              <span class="uc-count">3 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-5-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Extract liability percentage, deductible, COB offset and policy limits</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Calculate net payable exposure</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Adjust reserve to final exposure</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-5-uc-2">
+            <div class="uc-header" onclick="toggleUC('fn-5-uc-2')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-5-uc-2-chevron">›</span>
+                <span class="uc-name">Produce and submit settlement recommendation</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-5-uc-2-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Determine opening settlement position</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">25 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Draft settlement authority memo</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Route for required authority approvals</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Prepare and post Claim Evaluation (CEV) with reserve and settlement position</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="fn-block" id="fn-6">
+        <div class="fn-header" onclick="toggleFN('fn-6')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-6-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">5. Claim Resolution</span>
+              <span class="tag tag-sequential">Sequential phase</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">5 use cases · 33 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-6-body" style="display:none">
+          <div class="fn-desc">Completion state: outcome agreed, documents executed, all parties notified.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-6-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-6-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-6-uc-0-chevron">›</span>
+                <span class="uc-name">Negotiate settlement with claimant and attorney</span>
+              </div>
+              <span class="uc-count">7 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-6-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Prepare settlement offer</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Deliver settlement offer to claimant / attorney</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Compare counter-offer against settlement authority and position</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Identify and quantify outstanding liens</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Pursue and negotiate lien reduction</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Issue lien payment</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Execute settlement agreement</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-6-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-6-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-6-uc-1-chevron">›</span>
+                <span class="uc-name">Negotiate with vendors and providers</span>
+              </div>
+              <span class="uc-count">7 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-6-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Negotiate repair costs</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Negotiate rental costs</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Negotiate tow and storage fees</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Negotiate contractor and remediation costs</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">25 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Negotiate ALE vendor costs</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Casualty / WC] Negotiate medical bill reduction</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">25 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Casualty / WC] Negotiate medical provider fees</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-6-uc-2">
+            <div class="uc-header" onclick="toggleUC('fn-6-uc-2')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-6-uc-2-chevron">›</span>
+                <span class="uc-name">Resolve disputes</span>
+              </div>
+              <span class="uc-count">2 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-6-uc-2-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Generate dispute response documentation</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Schedule dispute resolution proceedings</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-6-uc-3">
+            <div class="uc-header" onclick="toggleUC('fn-6-uc-3')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-6-uc-3-chevron">›</span>
+                <span class="uc-name">Manage litigation</span>
+              </div>
+              <span class="uc-count">9 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-6-uc-3-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Perform conflict of interest check on defense counsel</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Document litigation transfer decision and rationale</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assign and brief defense attorney</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Request and review defense counsel ICA / IDP</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Compile and transmit legal packet</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Respond to discovery requests</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Schedule depositions</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Schedule mediation session</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Track and alert on court deadlines</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-6-uc-4">
+            <div class="uc-header" onclick="toggleUC('fn-6-uc-4')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-6-uc-4-chevron">›</span>
+                <span class="uc-name">Document and communicate resolution</span>
+              </div>
+              <span class="uc-count">8 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-6-uc-4-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Generate offer letter</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Generate denial letter</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Generate reservation of rights letter</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Obtain signatures on settlement agreement</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Obtain signatures on release form</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Issue coverage determination letter</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Transmit documents to all parties</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Generate and deliver Coverage Analysis Letter (CAL)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="fn-block" id="fn-7">
+        <div class="fn-header" onclick="toggleFN('fn-7')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-7-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">6. Claim Fulfillment</span>
+              <span class="tag tag-sequential">Sequential phase</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">5 use cases · 31 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-7-body" style="display:none">
+          <div class="fn-desc">Completion state: all payment and service obligations executed and confirmed.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-7-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-7-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-7-uc-0-chevron">›</span>
+                <span class="uc-name">Authorize payments</span>
+              </div>
+              <span class="uc-count">7 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-7-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Extract payment authority limit</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Identify all payees (claimant, vendors, lienholders, attorneys)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Validate Medicare Secondary Payer obligations</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Calculate payment amounts per payee</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Flag payments exceeding authority limit</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Route for supervisor approval</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Record approval decision</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-7-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-7-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-7-uc-1-chevron">›</span>
+                <span class="uc-name">Issue payments</span>
+              </div>
+              <span class="uc-count">3 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-7-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Issue payments to all parties</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Initiate structured settlement</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Send payment confirmation to claimant</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">2 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-7-uc-2">
+            <div class="uc-header" onclick="toggleUC('fn-7-uc-2')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-7-uc-2-chevron">›</span>
+                <span class="uc-name">Coordinate service delivery</span>
+              </div>
+              <span class="uc-count">13 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-7-uc-2-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Extract final expenses (repair invoice, rental duration, tow and storage charges)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Compare final expenses against authorized estimates</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Calculate and issue net amount due to relevant parties</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Extract final expenses (contractors, temporary housing)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Compare final expenses against estimates</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Property] Calculate and issue net amount due to relevant parties</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Casualty] Extract final medical bills and treatment records</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Casualty] Compare medical bills against treatment plan and fee schedule</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Casualty] Calculate and issue net amount due to medical providers</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Workers comp] Extract final medical, rehabilitation and indemnity expenses</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Workers comp] Compare expenses against treatment and disability rating</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Workers comp] Calculate and issue net amount due to all parties</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Workers comp] Collect and record permanent disability rating documentation</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-7-uc-3">
+            <div class="uc-header" onclick="toggleUC('fn-7-uc-3')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-7-uc-3-chevron">›</span>
+                <span class="uc-name">Collect deductible and resolve balances</span>
+              </div>
+              <span class="uc-count">5 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-7-uc-3-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Calculate and apply deductible offset against payment</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Issue deductible invoice to insured (if no payment offset available)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Chase outstanding deductible payment</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Identify and issue overpayment recovery request</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Review and respond to payment dispute</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-7-uc-4">
+            <div class="uc-header" onclick="toggleUC('fn-7-uc-4')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-7-uc-4-chevron">›</span>
+                <span class="uc-name">Confirm fulfillment completion</span>
+              </div>
+              <span class="uc-count">3 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-7-uc-4-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Reconcile all vendor invoices against payments issued</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Confirm all payment receipts and delivery</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Record fulfillment completion in claims system</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="fn-block" id="fn-8">
+        <div class="fn-header" onclick="toggleFN('fn-8')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-8-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">7. Claim Recovery</span>
+              <span class="tag tag-sequential">Sequential phase</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">4 use cases · 20 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-8-body" style="display:none">
+          <div class="fn-desc">Completion state: all recovery opportunities pursued, proceeds received and reconciled.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-8-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-8-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-8-uc-0-chevron">›</span>
+                <span class="uc-name">Identify recovery opportunities</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-8-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Extract and review liability determination from claim file</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Extract third-party and carrier contact and policy information</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">6 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assess recovery amount and viability</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assess subrogation potential and filing deadline</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Design recovery pursuit strategy</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Determine salvage opportunity and value</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-8-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-8-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-8-uc-1-chevron">›</span>
+                <span class="uc-name">Pursue subrogation</span>
+              </div>
+              <span class="uc-count">6 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-8-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Compile and package evidence file</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Generate and issue demand letter</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Negotiate recovery amount with third-party carrier</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#c62828;background:#fce4ec">AI: Low</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">30 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Prepare and submit arbitration filing</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">20 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Refer unresolved recovery to collections agency</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Receive and record recovery proceeds</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-8-uc-2">
+            <div class="uc-header" onclick="toggleUC('fn-8-uc-2')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-8-uc-2-chevron">›</span>
+                <span class="uc-name">Recover salvage</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-8-uc-2-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Arrange disposal or sale of damaged asset</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Submit asset to salvage auction or buyer</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Calculate net salvage value</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">[Auto] Process salvage title</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-8-uc-3">
+            <div class="uc-header" onclick="toggleUC('fn-8-uc-3')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-8-uc-3-chevron">›</span>
+                <span class="uc-name">Reconcile recovery proceeds</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-8-uc-3-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Allocate proceeds against claim payment</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Calculate net recovery</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Adjust reserve</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Submit recovery report</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+      <div class="fn-block" id="fn-9">
+        <div class="fn-header" onclick="toggleFN('fn-9')">
+          <div class="fn-left">
+            <span class="fn-chevron" id="fn-9-chevron">›</span>
+            <div class="fn-title-wrap">
+              <span class="fn-name">8. Claim Closure</span>
+              <span class="tag tag-sequential">Sequential phase</span>
+            </div>
+          </div>
+          <div class="fn-right">
+            <span class="fn-meta">5 use cases · 20 workflows</span>
+          </div>
+        </div>
+        <div class="fn-body" id="fn-9-body" style="display:none">
+          <div class="fn-desc">Completion state: file complete, compliant, financially closed, archived.</div>
+          <div class="uc-list">
+          <div class="uc-block" id="fn-9-uc-0">
+            <div class="uc-header" onclick="toggleUC('fn-9-uc-0')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-9-uc-0-chevron">›</span>
+                <span class="uc-name">Complete file documentation</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-9-uc-0-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Assess file completeness against closure checklist</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Organize and attach all claim documents to file</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Assign claim codes and categorization</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Issue closure letter to claimant</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-9-uc-1">
+            <div class="uc-header" onclick="toggleUC('fn-9-uc-1')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-9-uc-1-chevron">›</span>
+                <span class="uc-name">Complete compliance and audit review</span>
+              </div>
+              <span class="uc-count">3 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-9-uc-1-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Complete and record compliance checklist sign-off</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Validate diary and regulatory requirement completion</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">12 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Submit file for audit sample selection</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-9-uc-2">
+            <div class="uc-header" onclick="toggleUC('fn-9-uc-2')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-9-uc-2-chevron">›</span>
+                <span class="uc-name">Finalize financials</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-9-uc-2-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Reconcile final payment ledger</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">10 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Enter reserve release in claims system</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Verify recovery proceeds applied against payment ledger</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Submit financial closure data to finance system</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-9-uc-3">
+            <div class="uc-header" onclick="toggleUC('fn-9-uc-3')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-9-uc-3-chevron">›</span>
+                <span class="uc-name">Archive file</span>
+              </div>
+              <span class="uc-count">4 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-9-uc-3-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Assign retention schedule</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Transfer file to archive</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Update access permissions</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Set destruction date</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">2 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-block" id="fn-9-uc-4">
+            <div class="uc-header" onclick="toggleUC('fn-9-uc-4')">
+              <div class="uc-left">
+                <span class="uc-chevron" id="fn-9-uc-4-chevron">›</span>
+                <span class="uc-name">Generate performance and loss reporting</span>
+              </div>
+              <span class="uc-count">5 workflows</span>
+            </div>
+            <div class="uc-body" id="fn-9-uc-4-body" style="display:none">
+              <div class="wf-list">
+                <div class="wf-row">
+                  <div class="wf-name">Send and capture CSAT / NPS response</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#1565c0;background:#e3f2fd">Front office</span>
+                    <span class="badge badge-neutral">3 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Extract and record adjuster performance metrics</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Submit loss data to actuarial</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">8 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">File large loss report (CAT / large loss only)</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#f57f17;background:#fff8e1">AI: Medium</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">15 min/claim</span>
+                  </div>
+                </div>
+                <div class="wf-row">
+                  <div class="wf-name">Extract and submit cycle time and KPI data to reporting system</div>
+                  <div class="wf-badges">
+                    <span class="badge" style="color:#2e7d32;background:#e8f5e9">AI: High</span>
+                    <span class="badge" style="color:#6a1b9a;background:#f3e5f5">Back office</span>
+                    <span class="badge badge-neutral">5 min/claim</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="footer-note">Strada Internal · P&amp;C Claims Ontology v1 · 2025</div>
+</div>
+
+<script>
+function toggleFN(id) {
+  const block = document.getElementById(id);
+  const body = document.getElementById(id + '-body');
+  const isOpen = block.classList.contains('open');
+  block.classList.toggle('open', !isOpen);
+  body.style.display = isOpen ? 'none' : 'block';
+}
+
+function toggleUC(id) {
+  const block = document.getElementById(id);
+  const body = document.getElementById(id + '-body');
+  const isOpen = block.classList.contains('open');
+  block.classList.toggle('open', !isOpen);
+  body.style.display = isOpen ? 'none' : 'block';
+}
+
+function expandAll() {
+  document.querySelectorAll('[id^="fn-"]').forEach(el => {
+    if (!el.id.includes('-uc-') && !el.id.includes('-body') && !el.id.includes('-chevron')) {
+      const body = document.getElementById(el.id + '-body');
+      if (body) { el.classList.add('open'); body.style.display = 'block'; }
+    }
+  });
+  document.querySelectorAll('[id*="-uc-"]').forEach(el => {
+    if (!el.id.includes('-body') && !el.id.includes('-chevron')) {
+      const body = document.getElementById(el.id + '-body');
+      if (body) { el.classList.add('open'); body.style.display = 'block'; }
+    }
+  });
+}
+
+function collapseAll() {
+  document.querySelectorAll('.fn-block, .uc-block').forEach(el => {
+    el.classList.remove('open');
+  });
+  document.querySelectorAll('.fn-body, .uc-body').forEach(el => {
+    el.style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>
