@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic AI Use Cases — P&C Insurance Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --purple-50: #EEEDFE; --purple-200: #AFA9EC; --purple-500: #534AB7; --purple-800: #3C3489;
+    --teal-50: #E1F5EE; --teal-200: #5DCAA5; --teal-500: #0F6E56; --teal-800: #085041;
+    --gray-50: #F8F7F4; --gray-100: #F1EFE8; --gray-200: #D3D1C7; --gray-500: #888780; --gray-800: #2C2C2A;
+    --amber-50: #FAEEDA; --amber-400: #EF9F27; --amber-700: #854F0B;
+    --coral-50: #FAECE7; --coral-400: #D85A30; --coral-700: #993C1D;
+    --font: 'DM Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+  body {
+    font-family: var(--font);
+    background: var(--gray-50);
+    color: var(--gray-800);
+    min-height: 100vh;
+    padding: 0;
+  }
+  header {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 2rem 0 0;
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 2rem;
+  }
+  .header-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    margin-bottom: 0.5rem;
+    font-family: var(--mono);
+  }
+  h1 {
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 600;
+    color: var(--gray-800);
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+  h1 span { color: var(--purple-500); }
+  .header-desc {
+    font-size: 15px;
+    color: var(--gray-500);
+    max-width: 580px;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+  .stats-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gray-100);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--gray-500);
+  }
+  .stat-pill strong { color: var(--gray-800); font-weight: 600; }
+  .stat-pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-purple { background: var(--purple-500); }
+  .dot-teal { background: var(--teal-500); }
+  .dot-gray { background: var(--gray-500); }
+
+  .tabs-bar {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tabs-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    gap: 0;
+  }
+  .tab {
+    padding: 14px 20px;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-500);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--gray-800); }
+  .tab.active-all { color: var(--gray-800); border-bottom-color: var(--gray-800); }
+  .tab.active-cx { color: var(--purple-500); border-bottom-color: var(--purple-500); }
+  .tab.active-bo { color: var(--teal-500); border-bottom-color: var(--teal-500); }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-500);
+    font-family: var(--mono);
+    margin: 2rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gray-200);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition: box-shadow 0.15s, border-color 0.15s, transform 0.1s;
+    position: relative;
+  }
+  .card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+    border-color: var(--gray-200);
+    transform: translateY(-1px);
+  }
+  .card.selected-cx { border-color: var(--purple-200); box-shadow: 0 0 0 3px #EEEDFE; }
+  .card.selected-bo { border-color: var(--teal-200); box-shadow: 0 0 0 3px #E1F5EE; }
+  .card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .icon-wrap {
+    width: 34px; height: 34px;
+    border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    flex-shrink: 0;
+  }
+  .icon-cx { background: var(--purple-50); color: var(--purple-500); }
+  .icon-bo { background: var(--teal-50); color: var(--teal-500); }
+  .card-meta { flex: 1; }
+  .domain-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: var(--mono);
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+  }
+  .badge-cx { background: var(--purple-50); color: var(--purple-800); }
+  .badge-bo { background: var(--teal-50); color: var(--teal-800); }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--gray-800); line-height: 1.35; }
+  .card-desc { font-size: 13px; color: var(--gray-500); line-height: 1.55; }
+
+  .detail-panel {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+    padding: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    position: relative;
+    animation: slideIn 0.18s ease;
+  }
+  .detail-panel.cx { border-top: 3px solid var(--purple-500); }
+  .detail-panel.bo { border-top: 3px solid var(--teal-500); }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+  .close-btn {
+    position: absolute; top: 1rem; right: 1rem;
+    background: var(--gray-100); border: none; border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; cursor: pointer; color: var(--gray-500);
+  }
+  .close-btn:hover { background: var(--gray-200); }
+  .detail-domain { font-size: 10px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-family: var(--mono); margin-bottom: 6px; }
+  .detail-domain.cx { color: var(--purple-500); }
+  .detail-domain.bo { color: var(--teal-500); }
+  .detail-title { font-size: 20px; font-weight: 600; color: var(--gray-800); margin-bottom: 0.75rem; }
+  .detail-desc { font-size: 14px; color: #555; line-height: 1.65; margin-bottom: 1.25rem; }
+  .detail-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .chip {
+    font-size: 12px; padding: 4px 12px; border-radius: 999px;
+    font-family: var(--mono);
+    border: 1px solid var(--gray-200);
+    color: var(--gray-500);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .chip strong { color: var(--gray-800); font-weight: 500; }
+  .value-box {
+    background: var(--gray-100);
+    border-radius: var(--radius);
+    padding: 0.875rem 1rem;
+    font-size: 13px;
+    color: var(--gray-500);
+    line-height: 1.5;
+  }
+  .value-box strong { color: var(--gray-800); font-weight: 600; display: block; margin-bottom: 2px; }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 12px;
+    color: var(--gray-500);
+    font-family: var(--mono);
+    border-top: 1px solid var(--gray-200);
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+    .header-inner, main { padding: 1.25rem; }
+    .tabs-inner { overflow-x: auto; }
+    .tab { padding: 12px 14px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-eyebrow">Industry Intelligence</div>
+    <h1>Agentic AI Use Cases<br>for <span>P&C Insurance</span> Operations</h1>
+    <p class="header-desc">A comprehensive map of automation opportunities across customer-facing and back office functions — from FNOL to underwriting, fraud detection to regulatory filing.</p>
+    <div class="stats-row">
+      <div class="stat-pill"><span class="dot dot-gray"></span><strong>26</strong> total use cases</div>
+      <div class="stat-pill"><span class="dot dot-purple"></span><strong>13</strong> customer facing</div>
+      <div class="stat-pill"><span class="dot dot-teal"></span><strong>13</strong> back office</div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs-bar">
+  <div class="tabs-inner">
+    <button class="tab active-all" onclick="filter('all')"><i class="ti ti-layout-grid"></i> All</button>
+    <button class="tab" onclick="filter('cx')"><i class="ti ti-users"></i> Customer facing</button>
+    <button class="tab" onclick="filter('bo')"><i class="ti ti-building"></i> Back office</button>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<footer>Generated with Agentic AI · P&C Insurance Operations · 2025</footer>
+
+<script>
+const data = [
+  { type:'cx', icon:'ti-message-chatbot', domain:'Distribution', title:'AI-powered quote & bind', desc:'Conversational agent collects risk information, generates quotes, and completes policy binding end-to-end without agent handoff.', impact:'High', effort:'Medium', value:'Reduced acquisition cost, 24/7 availability' },
+  { type:'cx', icon:'ti-file-description', domain:'Policy Servicing', title:'Self-service policy changes', desc:'Agent authenticates customers and processes endorsements (coverage changes, vehicle adds/removes, driver changes) autonomously across core systems.', impact:'High', effort:'Medium', value:'Lower servicing cost, faster resolution' },
+  { type:'cx', icon:'ti-alert-triangle', domain:'Claims', title:'First notice of loss (FNOL)', desc:'Multimodal agent captures claim details via chat or voice, triages severity, assigns adjuster, and sets customer expectations automatically.', impact:'High', effort:'Low', value:'Faster FNOL, higher NPS' },
+  { type:'cx', icon:'ti-camera', domain:'Claims', title:'Photo-based damage estimation', desc:'Customer uploads vehicle or property photos; agent analyzes damage, estimates repair cost, and triggers payment or repair workflow.', impact:'High', effort:'Medium', value:'Touchless claims, reduced cycle time' },
+  { type:'cx', icon:'ti-refresh', domain:'Renewal', title:'Proactive renewal engagement', desc:'Agent monitors upcoming renewals, personalizes retention offers, answers coverage questions, and processes renewal transactions.', impact:'Medium', effort:'Low', value:'Improved retention, lower lapse rate' },
+  { type:'cx', icon:'ti-chart-line', domain:'Policy Servicing', title:'Coverage gap advisor', desc:'Analyzes customer profile and life events to proactively recommend coverage adjustments or new products at the right moment.', impact:'Medium', effort:'Medium', value:'Increased premium per policy, loyalty' },
+  { type:'cx', icon:'ti-clock', domain:'Claims', title:'Real-time claim status updates', desc:'Agent proactively pushes status updates, answers inbound status queries, and coordinates next steps without adjuster involvement.', impact:'Medium', effort:'Low', value:'Reduced inbound call volume, better CX' },
+  { type:'cx', icon:'ti-car', domain:'Claims', title:'Rental & repair coordination', desc:'Orchestrates rental car booking, repair shop selection, and appointment scheduling directly with third-party vendors post-claim approval.', impact:'Medium', effort:'Medium', value:'Frictionless claims experience' },
+  { type:'cx', icon:'ti-currency-dollar', domain:'Billing', title:'Billing & payment assistance', desc:'Handles payment plans, missed payment outreach, reinstatement offers, and payment processing through natural conversation.', impact:'Medium', effort:'Low', value:'Reduced lapse, lower collections cost' },
+  { type:'cx', icon:'ti-shield-check', domain:'Distribution', title:'Certificate of insurance issuance', desc:'Instantly generates and delivers certificates of insurance for commercial customers with proper verification and audit trail.', impact:'Medium', effort:'Low', value:'Eliminates manual processing delays' },
+  { type:'cx', icon:'ti-headset', domain:'Policy Servicing', title:'Complaint & escalation handling', desc:'Detects customer sentiment signals, captures complaints in structured form, routes to the right team, and follows up on resolution.', impact:'High', effort:'Medium', value:'Regulatory compliance, retention' },
+  { type:'cx', icon:'ti-map-pin', domain:'Claims', title:'Catastrophe claim triage', desc:'During CAT events, agent triages incoming claims volume by severity and location, prioritizing vulnerable customers and large losses.', impact:'High', effort:'High', value:'Faster CAT response, better outcomes' },
+  { type:'cx', icon:'ti-user-check', domain:'Distribution', title:'Agent-assist co-pilot', desc:'Real-time AI co-pilot surfaces relevant policy data, suggests next-best actions, and drafts responses while agents handle complex calls.', impact:'High', effort:'Medium', value:'AHT reduction, higher quality' },
+  { type:'bo', icon:'ti-file-search', domain:'Underwriting', title:'Automated risk appetite screening', desc:'Ingests submissions, enriches with third-party data sources (aerial imagery, IoT, credit), scores against appetite, and routes or declines automatically.', impact:'High', effort:'High', value:'Faster quote turnaround, better risk selection' },
+  { type:'bo', icon:'ti-clipboard-data', domain:'Underwriting', title:'Submission intake & clearing', desc:'Extracts structured data from unstructured submissions (email, PDF, ACORD forms), deduplicates, and populates the policy admin system.', impact:'High', effort:'Medium', value:'Reduced manual data entry, speed' },
+  { type:'bo', icon:'ti-zoom-money', domain:'Claims', title:'Automated claims adjudication', desc:'Applies coverage rules, deductibles, and liability logic to low-complexity claims for straight-through processing without human review.', impact:'High', effort:'High', value:'Lower LAE, faster payment' },
+  { type:'bo', icon:'ti-shield-x', domain:'Claims', title:'SIU fraud detection & referral', desc:'Continuously monitors claim patterns, cross-references internal and external data, flags anomalies, and packages evidence for investigators.', impact:'High', effort:'High', value:'Reduced leakage, fraud savings' },
+  { type:'bo', icon:'ti-scale', domain:'Claims', title:'Subrogation identification & pursuit', desc:'Identifies subrogation potential at intake, tracks liable third parties, drafts demand letters, and manages recovery workflow.', impact:'High', effort:'Medium', value:'Increased recovery revenue' },
+  { type:'bo', icon:'ti-report', domain:'Compliance', title:'Regulatory filing & reporting', desc:'Assembles, validates, and submits required regulatory filings (statistical, financial, rate & form) across jurisdictions on schedule.', impact:'Medium', effort:'Medium', value:'Reduced compliance risk, staff hours' },
+  { type:'bo', icon:'ti-rotate', domain:'Reinsurance', title:'Reinsurance bordereau processing', desc:'Extracts and reconciles premium and loss bordereaux data from cedants, flags discrepancies, and updates reinsurance systems.', impact:'Medium', effort:'Medium', value:'Faster close, reduced reconciliation errors' },
+  { type:'bo', icon:'ti-search', domain:'Underwriting', title:'Policy audit & quality review', desc:'Systematically audits issued policies for rating errors, missing endorsements, or appetite violations and queues corrections.', impact:'Medium', effort:'Low', value:'Reduced E&O exposure, premium leakage' },
+  { type:'bo', icon:'ti-users-group', domain:'HR / Operations', title:'Adjuster workload balancing', desc:'Dynamically assigns and re-assigns claims to adjusters based on complexity, jurisdiction, specialization, and current capacity.', impact:'Medium', effort:'Low', value:'Better utilization, faster claims' },
+  { type:'bo', icon:'ti-mail-opened', domain:'Operations', title:'Correspondence & document processing', desc:'Classifies inbound mail (physical and digital), extracts key data, routes to correct handler, and triggers required acknowledgement responses.', impact:'Medium', effort:'Low', value:'Mailroom automation, SLA adherence' },
+  { type:'bo', icon:'ti-chart-arrows-vertical', domain:'Actuarial', title:'Loss development & reserve monitoring', desc:'Monitors reserve adequacy, flags deteriorating segments, generates IBNR summaries, and surfaces anomalies for actuarial review.', impact:'High', effort:'High', value:'Improved reserving accuracy' },
+  { type:'bo', icon:'ti-building-store', domain:'Vendor Management', title:'Repair vendor performance monitoring', desc:'Tracks cycle time, cost benchmarks, and quality metrics across repair networks; surfaces underperforming vendors and triggers audits.', impact:'Medium', effort:'Medium', value:'Lower indemnity spend, better outcomes' },
+  { type:'bo', icon:'ti-puzzle', domain:'IT / Integration', title:'Legacy system data extraction', desc:'Agent navigates legacy green-screen or mainframe systems to extract, transform, and migrate data without full modernization.', impact:'High', effort:'High', value:'Unblocks modernization programs' }
+];
+
+let activeTitle = null;
+let currentFilter = 'all';
+
+function filter(f) {
+  currentFilter = f;
+  activeTitle = null;
+  document.querySelectorAll('.tab').forEach(t => { t.className = 'tab'; });
+  const map = { all: 'active-all', cx: 'active-cx', bo: 'active-bo' };
+  document.querySelectorAll('.tab')[['all','cx','bo'].indexOf(f)].classList.add(map[f]);
+  render();
+}
+
+function render() {
+  const filtered = data.filter(d => currentFilter === 'all' || d.type === currentFilter);
+  const cx = filtered.filter(d => d.type === 'cx');
+  const bo = filtered.filter(d => d.type === 'bo');
+  let html = '';
+
+  const detailHtml = (d) => `
+    <div class="detail-panel ${d.type}" id="detail-panel">
+      <button class="close-btn" onclick="closeDetail()" aria-label="Close"><i class="ti ti-x"></i></button>
+      <div class="detail-domain ${d.type}">${d.type === 'cx' ? 'Customer facing' : 'Back office'} · ${d.domain}</div>
+      <div class="detail-title">${d.title}</div>
+      <div class="detail-desc">${d.desc}</div>
+      <div class="detail-chips">
+        <div class="chip"><i class="ti ti-trending-up" style="font-size:14px"></i><strong>Impact:</strong> ${d.impact}</div>
+        <div class="chip"><i class="ti ti-tool" style="font-size:14px"></i><strong>Effort:</strong> ${d.effort}</div>
+      </div>
+      <div class="value-box"><strong>Business value</strong>${d.value}</div>
+    </div>`;
+
+  const cardHtml = (d, i) => `
+    <div class="card ${activeTitle === d.title ? 'selected-' + d.type : ''}" onclick="select(${i})" role="button" tabindex="0" aria-label="${d.title}">
+      <div class="card-header">
+        <div class="icon-wrap icon-${d.type}"><i class="ti ${d.icon}"></i></div>
+        <div class="card-meta">
+          <div class="domain-badge badge-${d.type}">${d.domain}</div>
+          <div class="card-title">${d.title}</div>
+        </div>
+      </div>
+      <div class="card-desc">${d.desc.substring(0, 95)}…</div>
+    </div>`;
+
+  if (currentFilter === 'all') {
+    if (cx.length) {
+      html += `<div class="section-label"><i class="ti ti-users" style="font-size:14px"></i> Customer facing (${cx.length})</div>`;
+      html += `<div class="grid">`;
+      cx.forEach((d, i) => {
+        html += cardHtml(d, data.indexOf(d));
+        if (activeTitle === d.title) html += `</div>${detailHtml(d)}<div class="grid" style="display:none">`;
+      });
+      html += `</div>`;
+      if (activeTitle && data.find(d => d.title === activeTitle)?.type === 'cx') {
+        // already injected inline
+      }
+    }
+    if (bo.length) {
+      html += `<div class="section-label" style="margin-top:2.5rem"><i class="ti ti-building" style="font-size:14px"></i> Back office (${bo.length})</div>`;
+      html += `<div class="grid">`;
+      bo.forEach((d) => {
+        html += cardHtml(d, data.indexOf(d));
+        if (activeTitle === d.title) html += `</div>${detailHtml(d)}<div class="grid" style="display:none">`;
+      });
+      html += `</div>`;
+    }
+  } else {
+    html += `<div class="grid">`;
+    filtered.forEach(d => {
+      html += cardHtml(d, data.indexOf(d));
+      if (activeTitle === d.title) html += `</div>${detailHtml(d)}<div class="grid" style="display:none">`;
+    });
+    html += `</div>`;
+  }
+
+  document.getElementById('main').innerHTML = html;
+}
+
+function select(i) {
+  const d = data[i];
+  activeTitle = activeTitle === d.title ? null : d.title;
+  render();
+  if (activeTitle) {
+    const panel = document.getElementById('detail-panel');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function closeDetail() { activeTitle = null; render(); }
+
+render();
+</script>
+</body>
+</html>
