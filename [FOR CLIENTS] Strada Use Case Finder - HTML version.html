@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strada — Claims AI Use Case Finder</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f7f7f5;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: #0a0a0a;
+    padding: 24px 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-logo { font-size: 20px; font-weight: 600; color: #fff; letter-spacing: -0.3px; }
+  .header-tag { font-size: 12px; color: #888; margin-top: 2px; }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  .hero { margin-bottom: 40px; }
+  .hero h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.5px; color: #0a0a0a; margin-bottom: 8px; }
+  .hero p { font-size: 15px; color: #666; max-width: 560px; line-height: 1.6; }
+
+  /* FILTER PANEL */
+  .filter-panel {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 36px;
+  }
+  .filter-panel-title {
+    font-size: 13px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.8px; color: #999; margin-bottom: 20px;
+  }
+  .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 768px) { .filter-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 480px) { .filter-grid { grid-template-columns: 1fr; } }
+
+  .filter-group label {
+    display: block; font-size: 12px; font-weight: 500;
+    color: #666; margin-bottom: 6px; letter-spacing: 0.2px;
+  }
+  .filter-group select {
+    width: 100%; padding: 9px 12px; border: 1px solid #e0e0e0;
+    border-radius: 7px; font-size: 14px; color: #1a1a1a;
+    background: #fafafa; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+    cursor: pointer; transition: border-color 0.15s;
+  }
+  .filter-group select:focus { outline: none; border-color: #0a0a0a; background-color: #fff; }
+  .filter-group select.active { border-color: #0a0a0a; background-color: #fff; font-weight: 500; }
+
+  .filter-actions { margin-top: 20px; }
+  .btn-reset {
+    font-size: 13px; color: #999; background: none; border: none;
+    cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px;
+  }
+  .btn-reset:hover { color: #333; }
+
+  /* RESULTS HEADER */
+  .results-header {
+    display: flex; align-items: baseline;
+    justify-content: space-between; margin-bottom: 20px;
+  }
+  .results-title { font-size: 16px; font-weight: 600; color: #0a0a0a; }
+
+  /* CARDS GRID */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 900px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .cards-grid { grid-template-columns: 1fr; } }
+
+  /* PHASE SECTION */
+  .phase-section { margin-bottom: 32px; }
+  .phase-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.8px; color: #999; margin-bottom: 12px;
+    padding-bottom: 8px; border-bottom: 1px solid #ebebeb;
+  }
+
+  /* CARD */
+  .card {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 20px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .card:hover {
+    border-color: #ccc;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+
+  /* Smooth card transitions */
+  .card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .card.entering {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .card.leaving {
+    opacity: 0;
+    transform: translateY(-6px);
+    pointer-events: none;
+  }
+  .phase-section {
+    transition: opacity 0.25s ease;
+  }
+  .phase-section.entering {
+    opacity: 0;
+  }
+
+  .card-headline {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0a0a0a;
+    line-height: 1.4;
+    letter-spacing: -0.1px;
+  }
+
+  .card-blurb {
+    font-size: 13px;
+    color: #777;
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .card-phase {
+    font-size: 11px;
+    color: #bbb;
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 60px 20px; color: #999;
+    background: #fff; border: 1px solid #e5e5e5; border-radius: 12px;
+    grid-column: 1 / -1;
+  }
+  .empty-state p { font-size: 15px; margin-bottom: 6px; color: #666; }
+  .empty-state small { font-size: 13px; }
+
+  .footer-note {
+    margin-top: 32px; font-size: 12px; color: #bbb; text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-logo">⊙ Strada</div>
+    <div class="header-tag">Claims AI Use Case Finder</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="hero">
+    <h1>Find the right AI use cases for your claims operation</h1>
+    <p>See what Strada recommends automating first for your specific profile – and discover what else is possible.</p>
+  </div>
+
+  <div class="filter-panel">
+    <div class="filter-panel-title">Your profile</div>
+    <div class="filter-grid">
+
+      <div class="filter-group">
+        <label>Segment</label>
+        <select id="seg" onchange="update()">
+          <option value="">All segments</option>
+          <option value="carrier">Carrier</option>
+          <option value="mga">MGA</option>
+          <option value="broker">Retail Broker</option>
+          <option value="wholesaler">Wholesaler</option>
+          <option value="tpa">TPA</option>
+          <option value="bpo">BPO</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Line of Business</label>
+        <select id="lob" onchange="update()">
+          <option value="">All lines</option>
+          <optgroup label="Auto">
+            <option value="autoAll">Auto (All)</option>
+            <option value="personalAuto">Personal Auto</option>
+            <option value="commercialAuto">Commercial Auto</option>
+            <option value="autoBIPIP">Auto BI / PIP</option>
+          </optgroup>
+          <optgroup label="Property">
+            <option value="propertyAll">Property (All)</option>
+            <option value="personalProperty">Personal Property</option>
+            <option value="commercialProperty">Commercial Property</option>
+            <option value="specialtyProperty">Specialty Property</option>
+          </optgroup>
+          <optgroup label="Casualty">
+            <option value="casualtyAll">Casualty (All)</option>
+            <option value="generalLiability">General Liability</option>
+            <option value="profLiability">Professional Liability / E&O</option>
+            <option value="do">D&O</option>
+          </optgroup>
+          <optgroup label="Workers Comp">
+            <option value="workersComp">Workers Comp</option>
+            <option value="employersLiability">Employer's Liability</option>
+          </optgroup>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Claim Volume (annual)</label>
+        <select id="vol" onchange="update()">
+          <option value="">All volumes</option>
+          <option value="under1k">Under 1,000</option>
+          <option value="1kto10k">1,000 to 10,000</option>
+          <option value="10kto100k">10,000 to 100,000</option>
+          <option value="over100k">100,000+</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Claim Outsourcing</label>
+        <select id="out" onchange="update()">
+          <option value="">All levels</option>
+          <option value="outsourcingLow">Low (10% or less)</option>
+          <option value="outsourcingMidLow">Mid-Low (10–30%)</option>
+          <option value="outsourcingMedium">Medium (40–60%)</option>
+          <option value="outsourcingMidHigh">Mid-High (60–80%)</option>
+          <option value="outsourcingHigh">High (80%+)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Distribution Model</label>
+        <select id="dist" onchange="update()">
+          <option value="">All models</option>
+          <option value="direct">Direct</option>
+          <option value="agentBroker">Agent / broker distributed</option>
+          <option value="mgaDistrib">MGA / program distributed</option>
+          <option value="embedded">Embedded / affinity</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Department / Function</label>
+        <select id="dept" onchange="update()">
+          <option value="">All departments</option>
+          <option value="deptClaims">Claims</option>
+          <option value="deptOperations">Operations</option>
+          <option value="deptUnderwriting">Underwriting</option>
+          <option value="deptDistribution">Distribution</option>
+          <option value="deptFinance">Finance</option>
+          <option value="deptIT">IT</option>
+          <option value="deptCustomerService">Customer Service</option>
+        </select>
+      </div>
+
+    </div>
+    <div class="filter-actions">
+      <button class="btn-reset" onclick="reset()">Reset filters</button>
+    </div>
+  </div>
+
+  <div class="results-header">
+    <div class="results-title">Recommended use cases</div>
+  </div>
+
+  <div id="results"></div>
+
+</div>
+
+<script>
+const DATA = [{"function":"[Horizontal] Claimant & Stakeholder Servicing","useCase":"Answer inbound status inquiries","headline":"Handle claimant status calls and inquiries","blurb":"Respond to \"where is my claim?\" across voice, chat, and email \u2013 without routing to an adjuster.","importance":77.0,"ai":85.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":0.9,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":1.0,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":1.0,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":1.0},{"function":"[Horizontal] Claimant & Stakeholder Servicing","useCase":"Perform claimant-initiated updates","headline":"Process claimant-requested changes mid-claim","blurb":"Update contact details, swap adjusters, log attorney representation changes, and handle payment method requests \u2013 without manual intervention.","importance":60.0,"ai":65.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":0.9,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.7,"employersLiability":0.5,"other":0.4,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":0.4,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":1.0,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.5,"deptCustomerService":1.0},{"function":"[Horizontal] Claimant & Stakeholder Servicing","useCase":"Manage third-party stakeholder contacts","headline":"Manage contacts from agents, attorneys, and vendors","blurb":"Route and respond to inquiries from agents, defense attorneys, medical providers, repair vendors, and lienholders \u2013 keeping all parties informed without adjuster involvement.","importance":62.0,"ai":60.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":0.9,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.8,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.9,"employersLiability":0.6,"other":0.5,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.6,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.5,"embedded":0.1,"deptClaims":0.5,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.5,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.5},{"function":"[Horizontal] Fraud, QA, and Regulation","useCase":"Maintain fraud & quality standards","headline":"Monitor claim quality and flag fraud","blurb":"Continuously score files for compliance, flag anomalous patterns, audit adjuster and vendor decisions, and generate QA performance reports \u2013 across the entire book.","importance":70.0,"ai":61.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":0.9,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.8,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":1.0,"direct":1.0,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.5,"deptCustomerService":0.1},{"function":"[Horizontal] Fraud, QA, and Regulation","useCase":"Manage regulatory obligations","headline":"Stay on top of regulatory and compliance obligations","blurb":"Track DOI complaints, respond to bad faith allegations, submit regulatory filings, and prepare for state market conduct exams \u2013 before they become problems.","importance":83.0,"ai":34.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.8,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":1.0,"direct":1.0,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.4,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":0.1,"deptCustomerService":0.1},{"function":"1. Claim Intake","useCase":"Receive loss notification","headline":"Capture first notice of loss across every channel","blurb":"Receive and process FNOL from claimants, agents, attorneys, hospitals, and CAT bulk feeds \u2013 in any format, at any volume.","importance":83.0,"ai":73.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":1.0,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.4,"embedded":0.1,"deptClaims":1.0,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.5,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":1.0},{"function":"1. Claim Intake","useCase":"Create claim record","headline":"Open a complete claim file at intake","blurb":"Extract policy and policyholder data, record loss details, set claim parameters, and open a structured file in your core system \u2013 in seconds, not minutes.","importance":82.0,"ai":82.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":1.0,"deptCustomerService":0.1},{"function":"1. Claim Intake","useCase":"Triage and route claim","headline":"Route every claim to the right handler","blurb":"Score severity, match CAT events, determine handling path, assign the right adjuster, and send acknowledgment to the claimant \u2013 without a human queue.","importance":79.0,"ai":78.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":1.0,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.4,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.5,"deptCustomerService":0.5},{"function":"1. Claim Intake","useCase":"Complete initial fraud screening","headline":"Screen every claim for fraud before it enters the workflow","blurb":"Run OFAC checks, duplicate claim detection, and fraud indicator scoring at intake \u2013 before any adjuster time is spent.","importance":78.0,"ai":95.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":0.6,"other":0.4,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":1.0,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":1.0,"deptCustomerService":0.1},{"function":"2. Coverage & Exposure Assessment","useCase":"Verify coverage","headline":"Confirm coverage and determine what the policy owes","blurb":"Extract policy terms, apply coverage rules to the loss, identify exclusions, coordinate other insurance, and issue reservation of rights when needed.","importance":82.0,"ai":66.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.9,"employersLiability":0.6,"other":0.4,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.6,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.9,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.4,"deptOperations":0.5,"deptUnderwriting":1.0,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.5},{"function":"2. Coverage & Exposure Assessment","useCase":"Establish liability position","headline":"Determine fault and exposure after FNOL","blurb":"Assess causation, evaluate negligence, identify third-party liability, and flag subrogation potential \u2013 within hours of FNOL, before investigation even starts.","importance":81.0,"ai":35.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":0.6,"autoAll":0.8,"personalAuto":0.5,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":0.8,"personalProperty":0.4,"commercialProperty":0.5,"specialtyProperty":0.5,"casualtyAll":0.5,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.9,"employersLiability":0.5,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.4,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.5,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.5,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.1},{"function":"2. Coverage & Exposure Assessment","useCase":"Assess complexity and risk","headline":"Classify every claim by complexity and litigation risk","blurb":"Determine severity tier and litigation exposure so the right resources are assigned \u2013 before investigation begins.","importance":80.0,"ai":48.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.9,"employersLiability":0.5,"other":0.4,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":1.0,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.5,"deptCustomerService":0.1},{"function":"2. Coverage & Exposure Assessment","useCase":"Determine investigation plan","headline":"Design the investigation plan immediately after intake","blurb":"Lock in workflow path, authority level, vendor needs, and specialist referrals \u2013 the moment the claim is qualified.","importance":76.0,"ai":65.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.3,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.1,"direct":1.0,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.1},{"function":"2. Coverage & Exposure Assessment","useCase":"Obtain authorization and consents","headline":"Collect all required authorizations before investigation","blurb":"Gather recorded statement consents, HIPAA releases, property access authorization, and telematics releases \u2013 preventing delays downstream.","importance":72.0,"ai":65.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.8,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.5,"outsourcingHigh":0.1,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.4,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.5},{"function":"3. Claim Investigation","useCase":"Obtain statements and interviews","headline":"Schedule and conduct recorded statements","blurb":"Coordinate recorded statements from insureds, claimants, and witnesses, and schedule EUOs \u2013 without adjuster back-and-forth.","importance":75.0,"ai":41.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.8,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.5,"employersLiability":0.1,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.5,"outsourcingHigh":0.1,"direct":0.1,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":0.1,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.1},{"function":"3. Claim Investigation","useCase":"Collect document and records","headline":"Chase and collect all claim-critical documents","blurb":"Request police reports, medical records, financials, telematics data, photos, and claimant-submitted documents \u2013 and follow up until everything is received.","importance":73.0,"ai":65.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.6,"outsourcingHigh":0.1,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.4,"deptClaims":0.4,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":0.5,"deptCustomerService":0.5},{"function":"3. Claim Investigation","useCase":"Assign and dispatch field resources","headline":"Get the right field resources deployed","blurb":"Select and assign IAs, appraisers, contractors, and medical providers, brief them with claim data, and confirm scheduling \u2013 without manual coordination.","importance":73.0,"ai":73.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":0.4,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":0.4,"autoBIPIP":0.4,"propertyAll":0.1,"personalProperty":0.1,"commercialProperty":0.4,"specialtyProperty":0.4,"casualtyAll":0.4,"generalLiability":0.5,"profLiability":1.0,"do":1.0,"workersComp":0.5,"employersLiability":0.1,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.4,"outsourcingHigh":0.1,"direct":1.0,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.1},{"function":"3. Claim Investigation","useCase":"Collect field investigation outputs","headline":"Receive, review, and validate all field reports","blurb":"Chase vendor reports and estimates, analyze written findings and photo documentation, validate completeness, and record investigation conclusions.","importance":73.0,"ai":54.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":0.4,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":0.4,"autoBIPIP":0.4,"propertyAll":0.1,"personalProperty":0.1,"commercialProperty":0.4,"specialtyProperty":0.4,"casualtyAll":0.4,"generalLiability":0.5,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.5,"outsourcingHigh":0.1,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.5,"deptCustomerService":0.1},{"function":"3. Claim Investigation","useCase":"Manage medical file","headline":"Control medical costs from treatment authorization to final bill","blurb":"Review treatment plans, authorize care, conduct medical bill audits, schedule IMEs, and coordinate return-to-work \u2013 keeping medical spend in check.","importance":77.0,"ai":39.0,"carrier":1.0,"mga":0.1,"broker":0.1,"wholesaler":0.1,"tpa":1.0,"bpo":0.1,"autoAll":0.1,"personalAuto":0.1,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":0.1,"personalProperty":0.1,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.1,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.1,"outsourcingHigh":0.1,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.4,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":0.1,"deptCustomerService":0.1},{"function":"3. Claim Investigation","useCase":"Resolve outstanding information","headline":"Chase down every missing piece before evaluation begins","blurb":"Follow up on missing documents, reconcile conflicting evidence, and escalate unresolvable gaps \u2013 so the claim never stalls mid-investigation.","importance":79.0,"ai":61.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.1,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.4,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.5},{"function":"4. Claim Evaluation","useCase":"Assess damage and losses","headline":"Assess every component of the loss","blurb":"Evaluate repair costs, total loss determinations, ACV, medical exposure, wage loss, and business interruption \u2013 across auto, property, casualty, and workers comp.","importance":80.0,"ai":37.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":0.1,"personalProperty":0.1,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.4,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.5,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.4,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":0.1,"deptCustomerService":0.1},{"function":"4. Claim Evaluation","useCase":"Calculate net payable exposure","headline":"Calculate net exposure and update reserves in one motion","blurb":"Apply liability percentage, deductible, COB offsets, and policy limits to arrive at net payable exposure \u2013 and adjust reserves immediately.","importance":82.0,"ai":77.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.9,"employersLiability":0.5,"other":0.4,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.9,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":1.0,"deptIT":0.5,"deptCustomerService":0.1},{"function":"4. Claim Evaluation","useCase":"Produce and submit settlement recommendation","headline":"Get settlement authority without the back-and-forth","blurb":"Determine opening position, draft the authority memo, prepare the CEV, and route for required approvals \u2013 without chasing sign-offs manually.","importance":79.0,"ai":49.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.5,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.4,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":0.1,"deptCustomerService":0.1},{"function":"5. Claim Resolution","useCase":"Negotiate settlement with claimant and attorney","headline":"Move settlement negotiations from offer to execution","blurb":"Prepare and deliver settlement offers, track counter-offers against authority, resolve liens, and execute the settlement agreement.","importance":80.0,"ai":52.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.4,"outsourcingHigh":0.5,"direct":0.1,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.4,"deptClaims":0.1,"deptOperations":0.1,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":0.1,"deptCustomerService":0.1},{"function":"5. Claim Resolution","useCase":"Negotiate with vendors and providers","headline":"Control vendor and medical costs through negotiation","blurb":"Negotiate repair costs, medical bill reductions, contractor fees, and ALE vendor costs \u2013 reducing leakage across auto, property, and casualty.","importance":71.0,"ai":21.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":0.5,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":0.5,"autoBIPIP":0.5,"propertyAll":0.1,"personalProperty":0.1,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.1,"generalLiability":0.5,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.1,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.4,"outsourcingHigh":0.1,"direct":0.4,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.1},{"function":"5. Claim Resolution","useCase":"Resolve disputes","headline":"Manage coverage disputes and alternative resolution","blurb":"Generate dispute response documentation and coordinate appraisal, IME disputes, and ADR proceedings \u2013 keeping disputed claims moving.","importance":73.0,"ai":70.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.4,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.4,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.1,"deptCustomerService":0.5},{"function":"5. Claim Resolution","useCase":"Manage litigation","headline":"Manage every litigated claim from counsel assignment to resolution","blurb":"Assign defense counsel, prepare legal packets, meet discovery obligations, track court deadlines, and coordinate depositions and mediation.","importance":72.0,"ai":58.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.8,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.1,"outsourcingHigh":1.0,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.4,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":0.1,"deptCustomerService":0.1},{"function":"5. Claim Resolution","useCase":"Document and communicate resolution","headline":"Generate and deliver every resolution document","blurb":"Draft offer letters, denial letters, ROR letters, settlement agreements, release forms, and coverage determination letters \u2013 compliantly and at scale.","importance":81.0,"ai":73.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.5,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.5,"deptOperations":0.5,"deptUnderwriting":0.5,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.5,"deptCustomerService":0.5},{"function":"6. Claim Fulfillment","useCase":"Authorize payments","headline":"Get payment approvals through the right authority chain","blurb":"Verify authority limits, identify all payees, validate Medicare Secondary Payer obligations, and flag over-authority payments \u2013 before anything is disbursed.","importance":80.0,"ai":77.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":1.0,"direct":0.9,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.9,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":1.0,"deptIT":0.5,"deptCustomerService":0.1},{"function":"6. Claim Fulfillment","useCase":"Issue payments","headline":"Disburse payments to all parties accurately","blurb":"Issue checks and ACH payments to claimants, vendors, lienholders, and attorneys \u2013 and confirm receipt across every payee.","importance":78.0,"ai":63.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":1.0,"deptClaims":0.4,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":1.0,"deptIT":0.5,"deptCustomerService":0.5},{"function":"6. Claim Fulfillment","useCase":"Coordinate service delivery","headline":"Confirm every repair, service, and treatment is complete and billed correctly","blurb":"Reconcile final invoices against authorized estimates across repair shops, contractors, medical providers, and rehab services.","importance":75.0,"ai":67.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":0.4,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":0.7,"autoBIPIP":0.7,"propertyAll":0.1,"personalProperty":0.1,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.1,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.5,"employersLiability":0.1,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.5,"outsourcingHigh":0.1,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.4,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":0.1,"deptCustomerService":0.1},{"function":"6. Claim Fulfillment","useCase":"Collect deductible and resolve balances","headline":"Recover deductibles and resolve payment discrepancies","blurb":"Collect deductibles, chase outstanding balances, identify overpayments, and handle payment disputes \u2013 without manual follow-up.","importance":76.0,"ai":64.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":1.0,"deptClaims":0.4,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":1.0,"deptIT":0.1,"deptCustomerService":0.5},{"function":"6. Claim Fulfillment","useCase":"Confirm fulfillment completion","headline":"Confirm every financial obligation is settled before closure","blurb":"Reconcile all vendor invoices, confirm payment receipts, and record fulfillment completion \u2013 ensuring nothing is left outstanding.","importance":72.0,"ai":77.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":0.9,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.9,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":1.0,"deptIT":0.5,"deptCustomerService":0.1},{"function":"7. Claim Recovery","useCase":"Identify recovery opportunities","headline":"Spot subrogation and salvage potential before the file closes","blurb":"Review liability determinations, assess recovery viability, identify responsible parties, confirm filing deadlines, and design a recovery strategy \u2013 before it's too late.","importance":72.0,"ai":52.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":0.4,"personalProperty":0.1,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.4,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.9,"employersLiability":0.5,"other":0.4,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.4,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.9,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":1.0,"deptIT":0.1,"deptCustomerService":0.1},{"function":"7. Claim Recovery","useCase":"Pursue subrogation","headline":"Recover claim costs from liable third parties","blurb":"Package evidence, issue demand letters, negotiate with third-party carriers, file arbitration, and track recovery proceeds \u2013 systematically.","importance":71.0,"ai":55.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":0.4,"personalProperty":0.1,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.4,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.4,"other":0.3,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.4,"outsourcingHigh":0.5,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.9,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":1.0,"deptIT":0.1,"deptCustomerService":0.1},{"function":"7. Claim Recovery","useCase":"Recover salvage","headline":"Maximize residual value from damaged assets","blurb":"Arrange asset disposal, coordinate salvage auctions, process titles, and calculate net salvage value \u2013 for vehicles and property.","importance":65.0,"ai":54.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":0.1,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":0.1,"autoBIPIP":0.1,"propertyAll":0.1,"personalProperty":0.1,"commercialProperty":0.1,"specialtyProperty":0.1,"casualtyAll":0.1,"generalLiability":0.1,"profLiability":1.0,"do":1.0,"workersComp":0.6,"employersLiability":0.1,"other":0.1,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.4,"outsourcingHigh":0.1,"direct":0.9,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.4,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":0.1,"deptCustomerService":0.1},{"function":"7. Claim Recovery","useCase":"Reconcile recovery proceeds","headline":"Reconcile recovery proceeds against the original claim payment","blurb":"Allocate subrogation and salvage proceeds against original payments, calculate net recovery, adjust reserves, and submit recovery reports.","importance":69.0,"ai":75.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":0.9,"personalProperty":0.1,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.4,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":0.4,"outsourcingHigh":1.0,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":1.0,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":1.0,"deptIT":0.5,"deptCustomerService":0.1},{"function":"8. Claim Closure","useCase":"Complete file documentation","headline":"Close every file with a complete, audit-ready record","blurb":"Check file completeness, attach and index all documents, assign claim codes, and issue the closure letter to the claimant.","importance":73.0,"ai":70.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":1.0,"direct":1.0,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.4,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.5,"deptCustomerService":0.5},{"function":"8. Claim Closure","useCase":"Complete compliance and audit review","headline":"Audit every closed file for compliance before archival","blurb":"Sign off the compliance checklist, validate diary completeness, confirm regulatory requirements are met, and flag files for audit sampling.","importance":72.0,"ai":68.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":1.0,"direct":1.0,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":0.5,"deptCustomerService":0.1},{"function":"8. Claim Closure","useCase":"Finalize financials","headline":"Complete the financial close on every resolved claim","blurb":"Reconcile the payment ledger, release reserves, verify recovery offsets, and submit financial data to your finance system.","importance":71.0,"ai":78.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":1.0,"direct":0.5,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":1.0,"deptClaims":0.1,"deptOperations":0.5,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":1.0,"deptIT":0.5,"deptCustomerService":0.1},{"function":"8. Claim Closure","useCase":"Archive file","headline":"Archive every closed claim file compliantly","blurb":"Assign retention schedules, transfer files to archive, update access permissions, and set destruction dates \u2013 automatically.","importance":58.0,"ai":83.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":0.5,"employersLiability":0.5,"other":0.5,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":0.5,"direct":0.9,"agentBroker":0.1,"mgaDistrib":0.1,"embedded":0.1,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.1,"deptDistribution":0.1,"deptFinance":0.1,"deptIT":1.0,"deptCustomerService":0.1},{"function":"8. Claim Closure","useCase":"Generate performance and loss reporting","headline":"Turn closed claims into actionable operational data","blurb":"Capture CSAT responses, record adjuster performance, submit loss data to actuarial, and report cycle times and KPIs across the book.","importance":68.0,"ai":74.0,"carrier":1.0,"mga":1.0,"broker":1.0,"wholesaler":1.0,"tpa":1.0,"bpo":1.0,"autoAll":1.0,"personalAuto":1.0,"commercialAuto":1.0,"autoBIPIP":1.0,"propertyAll":1.0,"personalProperty":1.0,"commercialProperty":1.0,"specialtyProperty":1.0,"casualtyAll":0.9,"generalLiability":1.0,"profLiability":1.0,"do":1.0,"workersComp":1.0,"employersLiability":1.0,"other":1.0,"outsourcingLow":1.0,"outsourcingMidLow":1.0,"outsourcingMedium":1.0,"outsourcingMidHigh":1.0,"outsourcingHigh":1.0,"direct":1.0,"agentBroker":0.4,"mgaDistrib":0.1,"embedded":0.6,"deptClaims":0.1,"deptOperations":1.0,"deptUnderwriting":0.5,"deptDistribution":0.1,"deptFinance":0.5,"deptIT":1.0,"deptCustomerService":0.1}];
+
+const VOL_MULT = {'': 1.0, 'under1k': 0.6, '1kto10k': 0.8, '10kto100k': 1.0, 'over100k': 1.2};
+
+function getScore(u, seg, lob, out, dist, dept, vol) {
+  const base = u.importance;
+  const segMult  = seg  ? u[seg]  : 1.0;
+  const lobMult  = lob  ? u[lob]  : 1.0;
+  const outS     = out  ? u[out]  : 1.0;
+  const distS    = dist ? u[dist] : 1.0;
+  const deptS    = dept ? u[dept] : 1.0;
+  let softTotal = 0, softWeight = 0;
+  if (out)  { softTotal += outS  * 0.40; softWeight += 0.40; }
+  if (dist) { softTotal += distS * 0.30; softWeight += 0.30; }
+  if (dept) { softTotal += deptS * 0.30; softWeight += 0.30; }
+  const softScore    = softWeight > 0 ? softTotal / softWeight : 1.0;
+  const softModifier = 0.7 + 0.3 * softScore;
+  const aiBoost      = 1.0 + (u.ai / 100) * 0.15;
+  const volMult      = VOL_MULT[vol] || 1.0;
+  return base * segMult * lobMult * softModifier * aiBoost * volMult;
+}
+
+// Clean phase label for display
+function phaseLabel(fn) {
+  return fn.replace('[Horizontal] ', '').replace(/^\d+\.\s*/, '');
+}
+
+
+
+function update() {
+  const seg  = document.getElementById('seg').value;
+  const lob  = document.getElementById('lob').value;
+  const out  = document.getElementById('out').value;
+  const dist = document.getElementById('dist').value;
+  const dept = document.getElementById('dept').value;
+  const vol  = document.getElementById('vol').value;
+
+  ['seg','lob','vol','out','dist','dept'].forEach(id => {
+    document.getElementById(id).classList.toggle('active', document.getElementById(id).value !== '');
+  });
+
+  // Score all use cases
+  const scored = DATA.map(u => ({ ...u, score: getScore(u, seg, lob, out, dist, dept, vol) }));
+  scored.sort((a, b) => b.score - a.score);
+
+  const hasFilters = [seg,lob,out,dist,dept,vol].some(Boolean);
+  const visible = hasFilters ? scored.slice(0, 15) : scored;
+
+  const activeCount = [seg,lob,out,dist,dept,vol].filter(Boolean).length;
+
+
+  if (visible.length === 0) {
+    document.getElementById('results').innerHTML = `
+      <div class="cards-grid">
+        <div class="empty-state">
+          <p>No use cases found for this combination.</p>
+          <small>Try broadening your filters.</small>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Group by function — sequential phases first, horizontals last
+  const PHASE_ORDER = [
+    '1. Claim Intake',
+    '2. Coverage & Exposure Assessment',
+    '3. Claim Investigation',
+    '4. Claim Evaluation',
+    '5. Claim Resolution',
+    '6. Claim Fulfillment',
+    '7. Claim Recovery',
+    '8. Claim Closure',
+    '[Horizontal] Claimant & Stakeholder Servicing',
+    '[Horizontal] Fraud, QA, and Regulation',
+  ];
+  const groups = {};
+  visible.forEach(u => {
+    if (!groups[u.function]) groups[u.function] = [];
+    groups[u.function].push(u);
+  });
+  const fnOrder = PHASE_ORDER.filter(fn => groups[fn]);
+
+  let html = '';
+  let cardIndex = 0;
+  fnOrder.forEach((fn, fnIdx) => {
+    const items = groups[fn];
+    const cards = items.map(u => {
+      const delay = Math.min(cardIndex * 40, 400);
+      cardIndex++;
+      return `
+      <div class="card" style="animation-delay:${delay}ms">
+        <div class="card-headline">${u.headline}</div>
+        <div class="card-blurb">${u.blurb}</div>
+      </div>`;
+    }).join('');
+
+    html += `
+      <div class="phase-section" style="animation-delay:${fnIdx * 30}ms">
+        <div class="phase-label">${phaseLabel(fn)}</div>
+        <div class="cards-grid">${cards}</div>
+      </div>`;
+  });
+
+  document.getElementById('results').innerHTML = html;
+}
+
+function reset() {
+  ['seg','lob','vol','out','dist','dept'].forEach(id => {
+    document.getElementById(id).value = '';
+    document.getElementById(id).classList.remove('active');
+  });
+  update();
+}
+
+update();
+</script>
+</body>
+</html>
