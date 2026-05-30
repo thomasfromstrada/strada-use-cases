@@ -15,16 +15,16 @@
   --font:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
 }
 body{font-family:var(--font);background:var(--g50);color:var(--g800);min-height:100vh}
-
+ 
 header{background:var(--black);padding:22px 48px;display:flex;align-items:center}
 .logo{font-size:18px;font-weight:600;color:#fff;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}
 .logo-sub{font-size:11px;color:#555;font-family:var(--mono);font-weight:400}
-
+ 
 .main{max-width:900px;margin:0 auto;padding:44px 24px 80px}
 .eyebrow{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--g400);font-family:var(--mono);margin-bottom:10px}
 h1{font-size:26px;font-weight:600;letter-spacing:-.4px;color:var(--black);margin-bottom:10px;line-height:1.25}
 .hero-desc{font-size:14px;color:var(--g500);max-width:480px;line-height:1.65;margin-bottom:36px}
-
+ 
 /* FILTERS */
 .filter-panel{background:var(--white);border:1px solid var(--g200);border-radius:12px;padding:20px 24px 18px;margin-bottom:32px}
 .filter-row{display:flex;gap:14px;flex-wrap:wrap}
@@ -40,12 +40,12 @@ h1{font-size:26px;font-weight:600;letter-spacing:-.4px;color:var(--black);margin
 .fg select.active{border-color:var(--black);background-color:var(--white);font-weight:500}
 .reset-btn{margin-top:12px;font-size:12px;color:var(--g400);background:none;border:none;cursor:pointer;font-family:var(--font);text-decoration:underline;text-underline-offset:2px}
 .reset-btn:hover{color:var(--g800)}
-
+ 
 /* SECTION */
 .section{margin-bottom:28px}
 .section-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--g400);font-family:var(--mono);margin-bottom:10px;display:flex;align-items:center;gap:10px}
 .section-label::after{content:'';flex:1;height:1px;background:var(--g200)}
-
+ 
 /* ROW ITEM — the full-width clickable row */
 .uc-row{
   background:var(--white);
@@ -57,7 +57,7 @@ h1{font-size:26px;font-weight:600;letter-spacing:-.4px;color:var(--black);margin
 }
 .uc-row:hover{border-color:var(--g300);box-shadow:0 2px 10px rgba(0,0,0,.05)}
 .uc-row.open{border-color:var(--black);box-shadow:0 4px 16px rgba(0,0,0,.08)}
-
+ 
 .uc-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:16px 18px;cursor:pointer;gap:12px;
@@ -65,7 +65,7 @@ h1{font-size:26px;font-weight:600;letter-spacing:-.4px;color:var(--black);margin
 }
 .uc-title{font-size:14px;font-weight:600;color:var(--black);line-height:1.4;letter-spacing:-.1px}
 .uc-row.open .uc-title{color:var(--black)}
-
+ 
 .uc-icon{
   width:28px;height:28px;border-radius:50%;background:var(--g100);
   display:flex;align-items:center;justify-content:center;
@@ -74,7 +74,7 @@ h1{font-size:26px;font-weight:600;letter-spacing:-.4px;color:var(--black);margin
 .uc-row.open .uc-icon{background:var(--black);transform:rotate(45deg)}
 .uc-icon svg{width:12px;height:12px;stroke:var(--g500);stroke-width:2;fill:none;transition:stroke .2s}
 .uc-row.open .uc-icon svg{stroke:#fff}
-
+ 
 /* EXPAND AREA — height animated via JS, not CSS max-height hack */
 .uc-body{
   height:0;overflow:hidden;
@@ -88,10 +88,10 @@ h1{font-size:26px;font-weight:600;letter-spacing:-.4px;color:var(--black);margin
   transition:opacity .2s .1s, transform .2s .1s;
 }
 .uc-row.open .uc-body-inner{opacity:1;transform:translateY(0)}
-
+ 
 .uc-desc{font-size:13.5px;color:var(--g500);line-height:1.65;padding-top:14px;margin-bottom:14px}
 .uc-tags{display:flex;gap:7px;flex-wrap:wrap}
-
+ 
 /* TAGS */
 .tag{font-size:11px;font-weight:500;font-family:var(--mono);padding:4px 10px;border-radius:20px;display:flex;align-items:center;gap:5px;white-space:nowrap}
 .tag-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
@@ -101,24 +101,24 @@ h1{font-size:26px;font-weight:600;letter-spacing:-.4px;color:var(--black);margin
 .tag-eff-h{background:#E8F5E9;color:#2E7D32}.tag-eff-h .tag-dot{background:#2E7D32}
 .tag-vrel{background:var(--black);color:#fff}.tag-vrel .tag-dot{background:rgba(255,255,255,.4)}
 .tag-rel{background:var(--g100);color:var(--g500)}.tag-rel .tag-dot{background:var(--g400)}
-
+ 
 .empty-state{text-align:center;padding:52px 20px;color:var(--g500);background:var(--white);border:1px solid var(--g200);border-radius:12px}
-
+ 
 /* Entrance animation only for new items */
 @keyframes rowIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
-
+ 
 <header>
   <div class="logo">⊙ Strada <span class="logo-sub">Use Case Finder</span></div>
 </header>
-
+ 
 <div class="main">
   <div class="eyebrow">P&amp;C Insurance Operations</div>
   <h1>See what Strada recommends<br>for your specific profile</h1>
   <p class="hero-desc">Select your segment, line of business, and department to surface the most relevant AI automation use cases for your operation.</p>
-
+ 
   <div class="filter-panel">
     <div class="filter-row">
       <div class="fg">
@@ -160,10 +160,10 @@ h1{font-size:26px;font-weight:600;letter-spacing:-.4px;color:var(--black);margin
     </div>
     <button class="reset-btn" onclick="resetFilters()">Reset filters</button>
   </div>
-
+ 
   <div id="results"></div>
 </div>
-
+ 
 <script>
 const DATA=[
   {domain:'Claims',                  title:'Answer inbound status inquiries',                       desc:'Respond to \u201cwhere is my claim?\u201d across voice, chat, and email \u2013 without routing to an adjuster.',                                                                    ai:'vh',eff:'vh',carrier:1.0,mga:0.7,broker:0.1,wholesaler:0.1,tpa:1.0,bpo:1.0,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:1.0,distribution:0.1,underwriting:0.1,operations:0.5,it:0.1,finance:0.1,cs:1.0},
@@ -182,27 +182,28 @@ const DATA=[
   {domain:'Servicing',               title:'Collect and process premium payments',                  desc:'Handle payment intake, follow up on missed payments, manage payment plans, and process reinstatement requests.',                                                                    ai:'h', eff:'h', carrier:1.0,mga:0.8,broker:0.4,wholesaler:0.1,tpa:0.3,bpo:0.7,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.8,underwriting:0.1,operations:0.5,it:0.3,finance:1.0,cs:0.6},
   {domain:'Servicing',               title:'Handle cancellation and reinstatement',                 desc:'Process cancellations, send required notices, follow up on non-payment lapses, and reinstate eligible policies.',                                                                   ai:'h', eff:'h', carrier:1.0,mga:0.8,broker:0.4,wholesaler:0.1,tpa:0.3,bpo:0.6,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:1.0,underwriting:0.1,operations:0.5,it:0.1,finance:0.5,cs:0.6},
   {domain:'Servicing',               title:'Respond to agent and broker inquiries',                 desc:'Handle status checks, coverage questions, and document requests from agents and brokers \u2013 without pulling internal staff.',                                                    ai:'vh',eff:'h', carrier:1.0,mga:1.0,broker:0.3,wholesaler:0.5,tpa:0.6,bpo:0.5,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.3,distribution:1.0,underwriting:0.3,operations:0.3,it:0.1,finance:0.1,cs:0.7},
+  {domain:'New Business & Renewals', title:'Quote intake and submission processing',              desc:'Receive and process quote requests from agents, brokers, and direct applicants – extract risk data from emails, forms, and attachments, validate completeness, and route to the right underwriter or appetite check automatically.',                                         ai:'vh',eff:'vh',carrier:1.0,mga:1.0,broker:0.5,wholesaler:0.9,tpa:0.1,bpo:0.6,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.5,underwriting:1.0,operations:0.8,it:0.4,finance:0.1,cs:0.1},
   {domain:'New Business & Renewals', title:'Triage and route incoming submissions',                 desc:'Receive, classify, and route new business submissions from email, portals, and APIs \u2013 and flag duplicates and out-of-appetite risks immediately.',                             ai:'vh',eff:'vh',carrier:1.0,mga:1.0,broker:0.3,wholesaler:0.8,tpa:0.3,bpo:0.6,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.1,underwriting:1.0,operations:0.8,it:0.5,finance:0.1,cs:0.1},
   {domain:'New Business & Renewals', title:'Generate renewal quotes and documents',                 desc:'Produce renewal quote documents, coverage change notices, and updated declarations \u2013 and deliver them to agents and policyholders on time.',                                   ai:'vh',eff:'vh',carrier:1.0,mga:1.0,broker:0.4,wholesaler:0.6,tpa:0.1,bpo:0.4,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.5,underwriting:1.0,operations:0.3,it:0.3,finance:0.1,cs:0.3},
   {domain:'New Business & Renewals', title:'Renewal notification and outbound outreach',            desc:'Trigger renewal reminders, explain premium and coverage changes, and proactively contact policyholders and agents ahead of expiry.',                                                ai:'vh',eff:'h', carrier:1.0,mga:0.9,broker:0.5,wholesaler:0.3,tpa:0.1,bpo:0.5,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.8,underwriting:0.5,operations:0.5,it:0.1,finance:0.1,cs:0.8},
   {domain:'New Business & Renewals', title:'Retention follow-up',                                   desc:'Follow up on non-responses, handle renewal objections, and escalate at-risk accounts \u2013 before they lapse.',                                                                   ai:'h', eff:'vh',carrier:1.0,mga:0.9,broker:0.6,wholesaler:0.2,tpa:0.1,bpo:0.3,auto:1.0,property:1.0,casualty:1.0,wc:1.0,other:0.9,claims:0.1,distribution:0.8,underwriting:0.5,operations:0.5,it:0.1,finance:0.1,cs:0.8},
 ];
-
+ 
 const SEG={carrier:'carrier',mga:'mga',broker:'broker',wholesaler:'wholesaler',tpa:'tpa',bpo:'bpo'};
 const LOB={auto:'auto',property:'property',casualty:'casualty',wc:'wc',other:'other'};
 const DEPT={claims:'claims',distribution:'distribution',underwriting:'underwriting',operations:'operations',it:'it',finance:'finance',cs:'cs'};
 const DOMAINS=['Claims','Servicing','New Business & Renewals'];
-
+ 
 let activeTitle=null;
 let prevVisible=[];
-
+ 
 function sc(u,seg,lob,dept){
   return Math.pow(seg?u[SEG[seg]]:1,1.5)*Math.pow(dept?u[DEPT[dept]]:1,1.5)*(lob?u[LOB[lob]]:1);
 }
 function aiTag(ai){return ai==='vh'?'<span class="tag tag-ai-vh"><span class="tag-dot"></span>AI potential: Very high</span>':'<span class="tag tag-ai-h"><span class="tag-dot"></span>AI potential: High</span>'}
 function effTag(e){return e==='vh'?'<span class="tag tag-eff-vh"><span class="tag-dot"></span>Efficiency gain: Very high</span>':'<span class="tag tag-eff-h"><span class="tag-dot"></span>Efficiency gain: High</span>'}
 function relTag(s,m){return(s/m)>=0.65?'<span class="tag tag-vrel"><span class="tag-dot"></span>Very relevant</span>':'<span class="tag tag-rel"><span class="tag-dot"></span>Relevant</span>'}
-
+ 
 function getVisible(seg,lob,dept){
   const hasF=!!(seg||lob||dept);
   const scored=DATA.map(u=>({...u,s:sc(u,seg,lob,dept)})).sort((a,b)=>b.s-a.s);
@@ -212,7 +213,7 @@ function getVisible(seg,lob,dept){
   const above=scored.filter(u=>u.s>=thr);
   return {items:above.length>=5?above.slice(0,12):scored.slice(0,5),maxS,hasF};
 }
-
+ 
 // Animate a row open by measuring its inner height
 function openRow(row){
   const body=row.querySelector('.uc-body');
@@ -231,14 +232,14 @@ function closeRow(row){
   body.style.height='0px';
   row.classList.remove('open');
 }
-
+ 
 function render(seg,lob,dept){
   const {items,maxS,hasF}=getVisible(seg,lob,dept);
   if(!items.find(u=>u.title===activeTitle)) activeTitle=null;
-
+ 
   const groups={};
   items.forEach(u=>{if(!groups[u.domain])groups[u.domain]=[];groups[u.domain].push(u)});
-
+ 
   let html='';
   DOMAINS.filter(d=>groups[d]).forEach(domain=>{
     let rows='';
@@ -262,10 +263,10 @@ function render(seg,lob,dept){
     });
     html+=`<div class="section"><div class="section-label">${domain}</div>${rows}</div>`;
   });
-
+ 
   prevVisible=items.map(u=>u.title);
   document.getElementById('results').innerHTML=html||'<div class="empty-state"><p>No use cases found. Try broader filters.</p></div>';
-
+ 
   // Restore open state without animation
   if(activeTitle){
     const row=document.getElementById('row-'+CSS.escape(activeTitle));
@@ -277,12 +278,12 @@ function render(seg,lob,dept){
     }
   }
 }
-
+ 
 function toggle(title){
   const seg=document.getElementById('seg').value;
   const lob=document.getElementById('lob').value;
   const dept=document.getElementById('dept').value;
-
+ 
   if(activeTitle===title){
     // Close current
     const row=document.getElementById('row-'+CSS.escape(activeTitle));
@@ -302,7 +303,7 @@ function toggle(title){
     }
   }
 }
-
+ 
 function applyFilters(){
   ['seg','lob','dept'].forEach(id=>document.getElementById(id).classList.toggle('active',!!document.getElementById(id).value));
   activeTitle=null;
@@ -311,14 +312,33 @@ function applyFilters(){
   const dept=document.getElementById('dept').value;
   render(seg,lob,dept);
 }
-
+ 
 function resetFilters(){
   ['seg','lob','dept'].forEach(id=>{document.getElementById(id).value='';document.getElementById(id).classList.remove('active')});
   activeTitle=null;
   render('','','');
 }
-
+ 
 render('','','');
 </script>
 </body>
 </html>
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1Password menu is available. Press down arrow to select.
